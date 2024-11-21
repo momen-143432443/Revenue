@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "220839691149",
+    "project_id": "csswaps-36427",
+    "storage_bucket": "csswaps-36427.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:220839691149:android:be4dbceb416eb8654d73c4",
+        "android_client_info": {
+          "package_name": "com.example.css"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA5TIyMbfdza19CZwJ_IZqnUlIxWiugrTo"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
