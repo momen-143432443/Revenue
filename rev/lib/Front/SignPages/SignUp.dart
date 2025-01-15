@@ -28,8 +28,6 @@ class _SignupState extends State<Signup> {
               SizedBox(height: 50),
               CsSwaps(),
               SizedBox(height: 100),
-              HrID(),
-              SizedBox(height: 15),
               Email(),
               SizedBox(height: 15),
               Password(),
@@ -88,37 +86,6 @@ class SaveAndContinue extends StatelessWidget {
             'Save & continue',
             style: GoogleFonts.aleo(color: white),
           )),
-    );
-  }
-}
-
-class HrID extends StatelessWidget {
-  const HrID({
-    super.key,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 10),
-      child: TextFormField(
-        controller: controller.hiId,
-        cursorRadius: const Radius.circular(3),
-        autocorrect: true,
-        enableInteractiveSelection: true,
-        cursorColor: Colors.white,
-        style: const TextStyle(color: black),
-        decoration: InputDecoration(
-          suffixIcon: const Icon(Iconsax.key, color: skyer),
-          labelText: 'HR ID',
-          labelStyle: const TextStyle(color: black),
-          filled: true,
-          floatingLabelBehavior: FloatingLabelBehavior.never,
-          border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12.0),
-              borderSide: const BorderSide(width: 0, style: BorderStyle.none)),
-        ),
-      ),
     );
   }
 }

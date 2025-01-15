@@ -32,7 +32,7 @@ class AuthenticationRepo extends GetxController {
       return await auth.createUserWithEmailAndPassword(
           email: email, password: password);
     } on FirebaseAuthException catch (e) {
-      return ifErrors(e.message.toString());
+      ifErrors(e.message.toString());
     }
   }
 

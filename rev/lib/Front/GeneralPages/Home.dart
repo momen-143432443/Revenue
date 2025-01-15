@@ -98,13 +98,49 @@ class AgentScedule extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.only(right: 266),
-      child: Text(
-        'username schedule',
-        style: GoogleFonts.aleo(fontSize: 15),
-      ),
-    );
+    return MultiBlocProvider(
+        providers: [
+          BlocProvider(
+            create: (context) =>
+                FetchNameAndPictureIntegration(ProfileController())
+                  ..add(FetchNameAndPictureEventLoading()),
+          )
+        ],
+        child: BlocBuilder<FetchNameAndPictureIntegration,
+            FetchNameAndPictureState>(
+          builder: (context, push) {
+            try {
+              if (push is FetchNameAndPictureStateLoading) {
+                return Padding(
+                  padding: const EdgeInsets.only(right: 266),
+                  child: Text(
+                    'username schedule',
+                    style: GoogleFonts.aleo(fontSize: 15),
+                  ),
+                );
+              } else if (push is FetchNameAndPictureStateLoaded) {
+                return Padding(
+                  padding: const EdgeInsets.only(right: 266),
+                  child: Text(
+                    "${push.user.firstName}${push.user.lastName} schedule",
+                    style: GoogleFonts.aleo(fontSize: 15),
+                  ),
+                );
+              } else if (push is FetchNameAndPictureStateError) {
+                return Padding(
+                  padding: const EdgeInsets.only(right: 266),
+                  child: Text(
+                    "Error found name",
+                    style: GoogleFonts.aleo(fontSize: 15),
+                  ),
+                );
+              }
+            } on PlatformException catch (e) {
+              return ifErrors(e.message.toString());
+            }
+            return const Text('Data');
+          },
+        ));
   }
 }
 

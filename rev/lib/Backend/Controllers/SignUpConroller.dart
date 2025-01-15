@@ -1,6 +1,5 @@
 import 'package:css/Backend/AuthenticationControls/AuthenticationRepo.dart';
-import 'package:css/Backend/Repositories/UserRepository/UserModel.dart';
-import 'package:css/Backend/Repositories/UserRepository/UserRepo.dart';
+import 'package:css/Backend/services/Api.dart';
 import 'package:css/Tools/Alerts.dart';
 import 'package:css/Tools/Loader.dart';
 import 'package:css/Tools/NaviBar.dart';
@@ -11,7 +10,6 @@ import 'package:get/get.dart';
 class SignupConroller extends GetxController {
   static SignupConroller get instance => Get.find();
 
-  final hiId = TextEditingController();
   final email = TextEditingController();
   final password = TextEditingController();
   final firstName = TextEditingController();
@@ -24,16 +22,14 @@ class SignupConroller extends GetxController {
       await AuthenticationRepo.instance
           .signUpWithEmail(email.text.trim(), password.text.trim());
 
-      final user = UserModel(
-          id: AuthenticationRepo.instance.authUser?.uid,
-          hrID: hiId.text.trim(),
-          email: email.text.trim(),
-          password: password.text.trim(),
-          firstName: firstName.text.trim(),
-          lastName: lastName.text.trim());
+      final user = {
+        "firstName": firstName.text.trim(),
+        "lastName": lastName.text.trim(),
+        "email": email.text.trim(),
+        "password": password.text.trim(),
+      };
 
-      final save = Get.put(UserRepo());
-      await save.saveUserRecords(user);
+      await Api.signUpToApp(user);
       Loader.stopLaoding();
       Get.offAll(() => const NaviBar());
     } on FirebaseAuthException catch (e) {
