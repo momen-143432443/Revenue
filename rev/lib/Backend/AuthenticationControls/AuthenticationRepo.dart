@@ -9,6 +9,7 @@ class AuthenticationRepo extends GetxController {
   static AuthenticationRepo get instance => Get.put(AuthenticationRepo());
 
   final auth = FirebaseAuth.instance;
+  final Alerts alerts = Alerts();
 
   User? get authUser => auth.currentUser;
 
@@ -32,8 +33,9 @@ class AuthenticationRepo extends GetxController {
       return await auth.createUserWithEmailAndPassword(
           email: email, password: password);
     } on FirebaseAuthException catch (e) {
-      ifErrors(e.message.toString());
+      alerts.ifErrors(e.message.toString());
     }
+    return null;
   }
 
   Future<UserCredential> signInWithEmail(String email, String password) async {
@@ -41,7 +43,7 @@ class AuthenticationRepo extends GetxController {
       return await auth.signInWithEmailAndPassword(
           email: email, password: password);
     } on FirebaseAuthException catch (e) {
-      throw ifErrors(e.message.toString());
+      return alerts.ifErrors(e.message.toString());
     }
   }
 
@@ -49,9 +51,9 @@ class AuthenticationRepo extends GetxController {
     try {
       return await auth.signOut();
     } on FirebaseAuthException catch (e) {
-      ifErrors(e.message.toString());
+      alerts.ifErrors(e.message.toString());
     } on PlatformException catch (e) {
-      ifErrors(e.message.toString());
+      alerts.ifErrors(e.message.toString());
     } catch (e) {
       throw 'Somthing went wrong, please try later';
     }

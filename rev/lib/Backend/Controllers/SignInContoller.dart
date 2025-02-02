@@ -11,6 +11,7 @@ class SigninContoller extends GetxController {
 
   final email = TextEditingController();
   final password = TextEditingController();
+  final Alerts alerts = Alerts();
   GlobalKey<FormState> signUpKey = GlobalKey<FormState>();
 
   Future<void> signInTrigger() async {
@@ -23,7 +24,7 @@ class SigninContoller extends GetxController {
 
       Get.offAll(() => const NaviBar());
     } on FirebaseAuthException catch (e) {
-      ifErrors(e.message.toString());
+      alerts.ifErrors(e.message.toString());
       Loader.stopLaoding();
     }
   }

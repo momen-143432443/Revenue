@@ -9,6 +9,7 @@ import 'package:get/get.dart';
 class SignOutCopntroller extends GetxController {
   static SignOutCopntroller get instance => Get.find();
   final out = Get.put(AuthenticationRepo());
+  final Alerts alerts = Alerts();
 
   Future<void> signOutTrigger() async {
     try {
@@ -17,10 +18,10 @@ class SignOutCopntroller extends GetxController {
       Loader.stopLaoding();
       Get.offAll(() => const SignIn());
     } on FirebaseAuthException catch (e) {
-      ifErrors(e.message.toString());
+      alerts.ifErrors(e.message.toString());
       Loader.stopLaoding();
     } on PlatformException catch (e) {
-      ifErrors(e.message.toString());
+      alerts.ifErrors(e.message.toString());
       Loader.stopLaoding();
     } catch (e) {
       throw 'Somthing went wrong, please try later';

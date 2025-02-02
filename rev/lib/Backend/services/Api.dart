@@ -1,23 +1,25 @@
-import 'dart:convert';
+// import 'dart:convert';
+// import 'package:css/Backend/Controllers/SignUpConroller.dart';
+// import 'package:http/http.dart' as http;
 
-import 'package:http/http.dart' as http;
+// class Api {
+//   static const baseUrl = "http://192.168.1.9/3000/";
 
-class Api {
-  static const baseUrl = "http://192.168.1.9/api/";
+//   static signUpToApp(Map pData) async {
+//     const resgistration = baseUrl + "registrantion";
+//     try {
+//       final res = await http.post(Uri.parse(resgistration),
+//           headers: {"Content-type": "application/json"},
+//           body: jsonEncode(user));
 
-  static signUpToApp(Map pData) async {
-    final url = Uri.parse("$baseUrl create user");
-    try {
-      final res = await http.post(url, body: pData);
-
-      if (res.statusCode == 200) {
-        final data = jsonDecode(res.body.toString());
-        print(data);
-      } else {
-        print("Failed to get the response");
-      }
-    } catch (e) {
-      print(e.toString());
-    }
-  }
-}
+//       if (res.statusCode == 200) {
+//         final data = jsonDecode(res.body.toString());
+//         print(data);
+//       } else {
+//         print("Failed to get the response");
+//       }
+//     } catch (e) {
+//       print(e.toString());
+//     }
+//   }
+// }

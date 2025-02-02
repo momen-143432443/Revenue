@@ -12,6 +12,7 @@ class ShowScheduleController extends GetxController {
   final show = Get.put(FetchScheduleAgent());
   late Map<String, dynamic> excelSchedule;
   final firestoreSchedule = {}.obs;
+  final Alerts alerts = Alerts();
 
   // ShowScheduleController(this.excelSchedule);
   Future<void> loadAndFetchExcelFile() async {
@@ -23,7 +24,7 @@ class ShowScheduleController extends GetxController {
       Loader.stopLaoding();
     } on PlatformException catch (e) {
       Loader.stopLaoding();
-      throw ifErrors(e.message.toString());
+      throw alerts.ifErrors(e.message.toString());
     }
   }
 
@@ -31,7 +32,7 @@ class ShowScheduleController extends GetxController {
     if (excelSchedule[agentId] == user.value.hrID &&
         AuthenticationRepo.instance.authUser?.uid != null) {
       String excelScheduleData =
-          excelSchedule![agentId] ?? 'No schedule available';
+          excelSchedule[agentId] ?? 'No schedule available';
       String firestoreScheduleData =
           firestoreSchedule[agentId] ?? 'No schedule in Firestore';
 

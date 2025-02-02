@@ -98,6 +98,7 @@ class AgentScedule extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final Alerts alerts = Alerts();
     return MultiBlocProvider(
         providers: [
           BlocProvider(
@@ -136,7 +137,7 @@ class AgentScedule extends StatelessWidget {
                 );
               }
             } on PlatformException catch (e) {
-              return ifErrors(e.message.toString());
+              return alerts.ifErrors(e.message.toString());
             }
             return const Text('Data');
           },
@@ -231,6 +232,7 @@ class PopupProfile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final tkOut = Get.put(SignOutCopntroller());
+    final Alerts alerts = Alerts();
     return MultiBlocProvider(
         providers: [
           BlocProvider(
@@ -297,7 +299,7 @@ class PopupProfile extends StatelessWidget {
                 return const Center(child: Text('Somthing went wrong'));
               }
             } on PlatformException catch (e) {
-              ifErrors(e.toString());
+              alerts.ifErrors(e.toString());
             } catch (e) {
               throw 'Somthing went wrong';
             }

@@ -1,5 +1,4 @@
 import 'package:css/Backend/AuthenticationControls/AuthenticationRepo.dart';
-import 'package:css/Backend/Controllers/ShowScheduleController.dart';
 import 'package:css/Backend/Repositories/UserRepository/UserModel.dart';
 import 'package:css/Backend/SceduleSturcture.dart/FetchScheduleAgent.dart';
 import 'package:css/Tools/Colors.dart';

@@ -1,5 +1,6 @@
+import 'dart:convert';
+import 'package:http/http.dart' as http;
 import 'package:css/Backend/AuthenticationControls/AuthenticationRepo.dart';
-import 'package:css/Backend/services/Api.dart';
 import 'package:css/Tools/Alerts.dart';
 import 'package:css/Tools/Loader.dart';
 import 'package:css/Tools/NaviBar.dart';
@@ -9,32 +10,74 @@ import 'package:get/get.dart';
 
 class SignupConroller extends GetxController {
   static SignupConroller get instance => Get.find();
-
+  final baseUrl = "http://192.168.1.4:3000/";
   final email = TextEditingController();
   final password = TextEditingController();
   final firstName = TextEditingController();
   final lastName = TextEditingController();
+  final Alerts alerts = Alerts();
+
   GlobalKey<FormState> signUpKey = GlobalKey<FormState>();
 
   Future<void> signUpTrigger() async {
-    try {
-      Loader.startLoading();
-      await AuthenticationRepo.instance
-          .signUpWithEmail(email.text.trim(), password.text.trim());
+    final resgistration = baseUrl + "create";
+    if (email.text.trim().isEmpty &&
+        password.text.trim().isEmpty &&
+        firstName.text.trim().isEmpty &&
+        lastName.text.trim().isEmpty) {
+      return alerts.allRequrie();
+    } else if (email.text.trim().isEmpty &&
+        password.text.trim().isNotEmpty &&
+        firstName.text.trim().isNotEmpty &&
+        lastName.text.trim().isNotEmpty) {
+      return alerts.emailRequrie();
+    } else if (email.text.trim().isNotEmpty &&
+        password.text.trim().isEmpty &&
+        firstName.text.trim().isNotEmpty &&
+        lastName.text.trim().isNotEmpty) {
+      return alerts.passwordRequrie();
+    } else if (email.text.trim().isNotEmpty &&
+        password.text.trim().isNotEmpty &&
+        firstName.text.trim().isEmpty &&
+        lastName.text.trim().isNotEmpty) {
+      return alerts.firstNameRequrie();
+    } else if (email.text.trim().isNotEmpty &&
+        password.text.trim().isNotEmpty &&
+        firstName.text.trim().isNotEmpty &&
+        lastName.text.trim().isEmpty) {
+      return alerts.lastNameRequrie();
+    } else if (email.text.trim().isNotEmpty &&
+        password.text.trim().isNotEmpty &&
+        firstName.text.trim().isNotEmpty &&
+        lastName.text.trim().isNotEmpty) {
+      try {
+        Loader.startLoading();
+        await AuthenticationRepo.instance
+            .signUpWithEmail(email.text.trim(), password.text.trim());
 
-      final user = {
-        "firstName": firstName.text.trim(),
-        "lastName": lastName.text.trim(),
-        "email": email.text.trim(),
-        "password": password.text.trim(),
-      };
+        final user = {
+          "email": email.text.trim(),
+          "password": password.text.trim(),
+          "firstName": firstName.text.trim(),
+          "lastName": lastName.text.trim(),
+        };
+        var res = await http.post(Uri.parse(resgistration),
+            headers: {"Content-type": "application/json"},
+            body: jsonEncode(user));
 
-      await Api.signUpToApp(user);
-      Loader.stopLaoding();
-      Get.offAll(() => const NaviBar());
-    } on FirebaseAuthException catch (e) {
-      ifErrors(e.message.toString());
-      Loader.stopLaoding();
+        var jsonResponse = jsonDecode(res.body);
+        print(jsonResponse['status']);
+        Loader.stopLaoding();
+        if (jsonResponse['status']) {
+          Get.offAll(() => const NaviBar());
+        } else {
+          Loader.stopLaoding();
+          alerts.exceptions('Somthing went wrong');
+        }
+      } on FirebaseAuthException catch (e) {
+        alerts.ifErrors(e.message.toString());
+        Loader.stopLaoding();
+      }
     }
   }
 }
