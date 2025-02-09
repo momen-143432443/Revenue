@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 const Color redColor = Color.fromARGB(255, 251, 12, 12);
 const Color greenColor = Color.fromARGB(255, 116, 187, 78);
+const Color lime = Color.fromARGB(255, 105, 233, 0);
 const Color blueColor = Color.fromARGB(255, 24, 75, 215);
 const Color black = Color(0xFF000000);
 const Color milkyblue = Color.fromARGB(255, 0, 208, 255);

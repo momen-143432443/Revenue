@@ -10,7 +10,7 @@ import 'package:get/get.dart';
 
 class SignupConroller extends GetxController {
   static SignupConroller get instance => Get.find();
-  final baseUrl = "http://192.168.1.4:3000/";
+  final baseUrl = "http://192.168.1.3:3000/";
   final email = TextEditingController();
   final password = TextEditingController();
   final firstName = TextEditingController();
@@ -49,11 +49,15 @@ class SignupConroller extends GetxController {
     } else if (email.text.trim().isNotEmpty &&
         password.text.trim().isNotEmpty &&
         firstName.text.trim().isNotEmpty &&
+        lastName.text.trim().isNotEmpty &&
+        firstName.text.length < 6) {
+      return alerts.nameLenRequrie();
+    } else if (email.text.trim().isNotEmpty &&
+        password.text.trim().isNotEmpty &&
+        firstName.text.trim().isNotEmpty &&
         lastName.text.trim().isNotEmpty) {
       try {
         Loader.startLoading();
-        await AuthenticationRepo.instance
-            .signUpWithEmail(email.text.trim(), password.text.trim());
 
         final user = {
           "email": email.text.trim(),
@@ -61,19 +65,34 @@ class SignupConroller extends GetxController {
           "firstName": firstName.text.trim(),
           "lastName": lastName.text.trim(),
         };
-        var res = await http.post(Uri.parse(resgistration),
-            headers: {"Content-type": "application/json"},
-            body: jsonEncode(user));
-
-        var jsonResponse = jsonDecode(res.body);
-        print(jsonResponse['status']);
-        Loader.stopLaoding();
-        if (jsonResponse['status']) {
+        await http
+            .post(Uri.parse(resgistration),
+                headers: {"Content-type": "application/json"},
+                body: jsonEncode(user))
+            .then((value) {
+          Loader.startLoading();
           Get.offAll(() => const NaviBar());
-        } else {
-          Loader.stopLaoding();
-          alerts.exceptions('Somthing went wrong');
-        }
+        }).onError(
+          (error, stackTrace) {
+            Loader.stopLaoding();
+            alerts.ifErrors(error.toString());
+            // alerts.exceptions('Somthing went wrong');
+            print(error.toString());
+          },
+        );
+
+        await AuthenticationRepo.instance
+            .signUpWithEmail(email.text.trim(), password.text.trim());
+
+        // var jsonResponse = jsonDecode(res);
+        // print(jsonResponse['status']);
+        // Loader.stopLaoding();
+        // if (jsonResponse['status']) {
+        //   Get.offAll(() => const NaviBar());
+        // } else {
+        //   Loader.stopLaoding();
+        //   alerts.exceptions('Somthing went wrong');
+        // }
       } on FirebaseAuthException catch (e) {
         alerts.ifErrors(e.message.toString());
         Loader.stopLaoding();

@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:iconsax/iconsax.dart';
-import 'dart:math' as math;
 
 final controller = Get.put(SignupConroller());
 
@@ -18,25 +17,31 @@ class Signup extends StatefulWidget {
 class _SignupState extends State<Signup> {
   @override
   Widget build(BuildContext context) {
-    return const Scaffold(
+    double width = MediaQuery.of(context).size.width;
+    double height = MediaQuery.of(context).size.height;
+
+    return Scaffold(
       body: SafeArea(
           child: SingleChildScrollView(
         scrollDirection: Axis.vertical,
         child: SizedBox(
           child: Column(
             children: [
-              SizedBox(height: 50),
-              CsSwaps(),
-              SizedBox(height: 100),
-              Email(),
-              SizedBox(height: 15),
-              Password(),
-              SizedBox(height: 15),
-              FirstnameAndLastName(),
-              SizedBox(height: 45),
-              SaveAndContinue(),
-              SizedBox(height: 235),
-              PushToSignIn()
+              sizeBox(50),
+              CsSwaps(
+                width: width,
+                height: height,
+              ),
+              sizeBox(100),
+              const Email(),
+              sizeBox(15),
+              const Password(),
+              sizeBox(15),
+              const FirstnameAndLastName(),
+              sizeBox(45),
+              const SaveAndContinue(),
+              sizeBox(235),
+              const PushToSignIn()
             ],
           ),
         ),
@@ -218,37 +223,29 @@ class Email extends StatelessWidget {
 class CsSwaps extends StatelessWidget {
   const CsSwaps({
     super.key,
+    required this.width,
+    required this.height,
   });
 
+  final double width;
+  final double height;
   @override
   Widget build(BuildContext context) {
-    return Stack(children: [
-      Positioned(
-        left: 270,
-        bottom: 14,
-        child: Transform.rotate(
-          angle: math.pi / 17,
-          child: const Icon(
-            size: 40,
-            Iconsax.headphone5,
-            color: skyer,
-          ),
-        ),
-      ),
-      Row(
+    return SizedBox(
+      width: width / 1.2,
+      height: height / 7 + 26,
+      child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Text(
-            'CS',
-            style: GoogleFonts.aleo(fontSize: 24, color: csGrey),
+            'R',
+            style: GoogleFonts.italianno(
+                fontSize: 115, color: lime, fontWeight: FontWeight.w500),
           ),
-          Text(
-            'Swaps',
-            style: GoogleFonts.aleo(
-                fontSize: 35, color: skyer, fontWeight: FontWeight.w600),
-          )
         ],
       ),
-    ]);
+    );
   }
 }
+
+sizeBox(double height) => SizedBox(height: height);

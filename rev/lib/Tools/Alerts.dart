@@ -62,6 +62,35 @@ class Alerts {
     ));
   }
 
+  nameLenRequrie() {
+    return ScaffoldMessenger.of(navigator!.context).showSnackBar(SnackBar(
+      dismissDirection: DismissDirection.down,
+      width: widthOfButton / 1.3 + 20,
+      behavior: SnackBarBehavior.floating,
+      backgroundColor: white,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
+      content: const Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisAlignment: MainAxisAlignment.spaceAround,
+        children: [
+          Icon(
+            Icons.error_outline,
+            color: redColor,
+          ),
+          Text(
+            "The first must be at least 6 letters",
+            style: TextStyle(color: redColor),
+          ),
+          Text(
+            '.',
+            style: TextStyle(color: Colors.transparent, fontSize: 1),
+          )
+        ],
+      ),
+      duration: const Duration(seconds: 2),
+    ));
+  }
+
   passwordRequrie() {
     return ScaffoldMessenger.of(navigator!.context).showSnackBar(SnackBar(
       dismissDirection: DismissDirection.down,
