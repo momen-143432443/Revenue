@@ -84,12 +84,12 @@ class SaveAndContinue extends StatelessWidget {
     return SizedBox(
       width: width / 1.2,
       child: ElevatedButton(
-          style: const ButtonStyle(
-              backgroundColor: WidgetStatePropertyAll(blueColor)),
+          style:
+              const ButtonStyle(backgroundColor: WidgetStatePropertyAll(grey)),
           onPressed: () async => await controller.signUpTrigger(),
           child: Text(
             'Save & continue',
-            style: GoogleFonts.aleo(color: white),
+            style: GoogleFonts.aleo(color: black),
           )),
     );
   }
@@ -115,7 +115,7 @@ class FirstnameAndLastName extends StatelessWidget {
               cursorColor: Colors.white,
               style: const TextStyle(color: black),
               decoration: InputDecoration(
-                suffixIcon: const Icon(Iconsax.user, color: skyer),
+                suffixIcon: const Icon(Iconsax.user, color: black),
                 labelText: 'First name',
                 labelStyle: const TextStyle(color: black),
                 filled: true,
@@ -139,7 +139,7 @@ class FirstnameAndLastName extends StatelessWidget {
               cursorColor: Colors.white,
               style: const TextStyle(color: black),
               decoration: InputDecoration(
-                suffixIcon: const Icon(Iconsax.user, color: skyer),
+                suffixIcon: const Icon(Iconsax.user, color: black),
                 labelText: 'Last name',
                 labelStyle: const TextStyle(color: black),
                 filled: true,
@@ -175,7 +175,7 @@ class Password extends StatelessWidget {
         cursorColor: Colors.white,
         style: const TextStyle(color: black),
         decoration: InputDecoration(
-          suffixIcon: const Icon(Iconsax.lock, color: skyer),
+          suffixIcon: const Icon(Iconsax.lock, color: black),
           labelText: 'Password',
           labelStyle: const TextStyle(color: black),
           filled: true,
@@ -206,7 +206,7 @@ class Email extends StatelessWidget {
         cursorColor: Colors.white,
         style: const TextStyle(color: black),
         decoration: InputDecoration(
-          suffixIcon: const Icon(Icons.email_outlined, color: skyer),
+          suffixIcon: const Icon(Icons.email_outlined, color: black),
           labelText: 'Email',
           labelStyle: const TextStyle(color: black),
           filled: true,

@@ -13,8 +13,7 @@ class Loader {
             width: 120,
             height: 120,
             child: Center(
-              child: LoadingAnimationWidget.beat(color: skyer, size: 55),
-            ),
+                child: LoadingAnimationWidget.inkDrop(color: lime, size: 45)),
           )),
     );
   }

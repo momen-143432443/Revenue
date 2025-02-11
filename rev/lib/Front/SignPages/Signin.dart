@@ -41,12 +41,12 @@ class _SignInState extends State<SignIn> {
               sizeBox(45),
               Continue(width: width),
               const Divider(),
-              sizeBox(100),
               const TryToQuickSign(),
               sizeBox(15),
               GoogleSign(width: width),
               const SizedBox(height: 5),
               FacebookSign(width: width),
+              sizeBox(100),
               sizeBox(height / 22),
               const PushToSignUp()
             ],
