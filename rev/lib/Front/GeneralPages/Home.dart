@@ -3,7 +3,7 @@ import 'package:css/Backend/Blocs/FetchNameAndPictureBloc/FetchNameAndPictureInt
 import 'package:css/Backend/Blocs/FetchNameAndPictureBloc/FetchNameAndPictureState.dart';
 import 'package:css/Backend/Controllers/ProfileController.dart';
 import 'package:css/Backend/Controllers/SignOutController.dart';
-import 'package:css/Front/GeneralPages/Swaps.dart';
+import 'package:css/Backend/RevenueItems/ItemsModel.dart';
 import 'package:css/Tools/Alerts.dart';
 import 'package:css/Tools/Colors.dart';
 import 'package:flutter/material.dart';
@@ -12,8 +12,10 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:iconsax/iconsax.dart';
+import 'package:css/Backend/RevenueItems/RevData.dart';
 
 final controller = Get.put(ProfileController());
+final control = Get.put(SignOutCopntroller());
 
 class Home extends StatefulWidget {
   const Home({super.key});
@@ -23,26 +25,18 @@ class Home extends StatefulWidget {
 }
 
 class _HomeState extends State<Home> {
+  int selectedFeature = 0;
+  int selectItems = 1;
+  void _toggleLike(int indeex) {
+    setState(() {
+      availableIems[indeex].liked = !availableIems[indeex].liked;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
-    final List<String> daysOfWeek = [
-      'Sunday',
-      'Monday',
-      'Tuesday',
-      'Wednesday',
-      'Thursday',
-      'Friday',
-      'Saturday'
-    ];
-    final List<String> shifts = [
-      '17:00 pm - 02:00 am',
-      '17:00 pm - 02:00 am',
-      '17:00 pm - 02:00 am',
-      'Off',
-      '17:00 pm - 02:00 am',
-      '17:00 pm - 02:00 am',
-      'Off'
-    ];
+    final siz = MediaQuery.of(context).size;
+    const EdgeInsets sym = EdgeInsets.symmetric(horizontal: 20);
     return Scaffold(
       body: SafeArea(
           child: SingleChildScrollView(
@@ -52,164 +46,137 @@ class _HomeState extends State<Home> {
               children: [
                 const UsernameAndProfilePic(),
                 const SizedBox(height: 65),
-                const AgentScedule(),
+                // revFeatured(siz, sym),
+                Row(children: [
+                  Container(
+                    width: siz.width / 16,
+                    height: siz.height / 2,
+                    margin: EdgeInsets.symmetric(horizontal: siz.width * 0.02),
+                    child: RotatedBox(
+                      quarterTurns: -1,
+                      child: SizedBox(
+                        child: ListView.builder(
+                          scrollDirection: Axis.horizontal,
+                          itemCount: featured.length,
+                          itemBuilder: (context, index) {
+                            return GestureDetector(
+                              onTap: () {
+                                setState(() {});
+                              },
+                              child: Padding(
+                                padding: sym,
+                                child: Text(
+                                  featured[index],
+                                  style: GoogleFonts.aleo(
+                                      color: selectedFeature == index
+                                          ? black
+                                          : grey,
+                                      fontSize:
+                                          selectedFeature == index ? 21 : 18,
+                                      fontWeight: selectedFeature == index
+                                          ? FontWeight.w600
+                                          : FontWeight.w400),
+                                ),
+                              ),
+                            );
+                          },
+                        ),
+                      ),
+                    ),
+                  ),
+                  SizedBox(
+                    width: siz.width * 0.89,
+                    height: siz.height * 0.4,
+                    child: ListView.builder(
+                      itemCount: availableIems.length,
+                      scrollDirection: Axis.horizontal,
+                      itemBuilder: (context, idx) {
+                        RevenueIemsModel model = availableIems[idx];
+
+                        return GestureDetector(
+                          onTap: () {
+                            setState(() {});
+                          },
+                          child: Container(
+                            margin: EdgeInsets.symmetric(
+                                horizontal: siz.height * 0.005,
+                                vertical: siz.height * 0.01),
+                            width: siz.width / 1.5,
+                            child: Stack(
+                              children: [
+                                Container(
+                                  width: siz.width / 1.81,
+                                  decoration: BoxDecoration(
+                                      border: Border.all(
+                                        color: model.itemColor,
+                                      ),
+                                      borderRadius: BorderRadius.circular(20)),
+                                ),
+                                Positioned(
+                                  top: 5,
+                                  left: 20,
+                                  child: Column(
+                                    children: [
+                                      Text(
+                                        model.name,
+                                        style: GoogleFonts.aleo(
+                                            color: black,
+                                            fontSize: 21,
+                                            fontWeight: FontWeight.w600),
+                                      ),
+                                      Text('${model.price} JOD',
+                                          style: GoogleFonts.aleo(
+                                              fontSize: 15, color: black)),
+                                    ],
+                                  ),
+                                ),
+                                Positioned(
+                                  top: 50,
+                                  child: SizedBox(
+                                    width: 250,
+                                    height: 230,
+                                    child: Image(
+                                        image: AssetImage(model.imgAdress)),
+                                  ),
+                                ),
+                                Positioned(
+                                    top: 300,
+                                    left: 10,
+                                    child: Text(
+                                      model.model,
+                                      style: GoogleFonts.aleo(
+                                          fontSize: 15,
+                                          fontWeight: FontWeight.w600,
+                                          color: black),
+                                    )),
+                                Positioned(
+                                  top: 5,
+                                  left: 190,
+                                  child: IconButton(
+                                      onPressed: () => _toggleLike(idx),
+                                      icon: Icon(Iconsax.heart,
+                                          size: 40,
+                                          color: availableIems[idx].liked
+                                              ? redColor
+                                              : black)),
+                                ),
+                              ],
+                            ),
+                          ),
+                        );
+                      },
+                    ),
+                  )
+                ]),
+                // const SizedBox(height: 15),
+
                 const SizedBox(height: 15),
-                Weeks(daysOfWeek: daysOfWeek),
-                AgentSifts(shifts: shifts),
-                const SizedBox(height: 15),
-                const SwapsButton()
               ],
             ),
           ),
         ),
       )),
     );
-  }
-}
-
-class SwapsButton extends StatelessWidget {
-  const SwapsButton({
-    super.key,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    double width = MediaQuery.of(context).size.width;
-    return SizedBox(
-      width: width / 2,
-      child: ElevatedButton.icon(
-        style: const ButtonStyle(
-            backgroundColor: WidgetStatePropertyAll(blueColor)),
-        onPressed: () => Get.to(() => const Swaps()),
-        label: const Text("Swaps", style: TextStyle(color: white)),
-        icon: const Icon(
-          Iconsax.arrow_swap,
-          color: white,
-        ),
-      ),
-    );
-  }
-}
-
-class AgentScedule extends StatelessWidget {
-  const AgentScedule({
-    super.key,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final Alerts alerts = Alerts();
-    return MultiBlocProvider(
-        providers: [
-          BlocProvider(
-            create: (context) =>
-                FetchNameAndPictureIntegration(ProfileController())
-                  ..add(FetchNameAndPictureEventLoading()),
-          )
-        ],
-        child: BlocBuilder<FetchNameAndPictureIntegration,
-            FetchNameAndPictureState>(
-          builder: (context, push) {
-            try {
-              if (push is FetchNameAndPictureStateLoading) {
-                return Padding(
-                  padding: const EdgeInsets.only(right: 266),
-                  child: Text(
-                    'username schedule',
-                    style: GoogleFonts.aleo(fontSize: 15),
-                  ),
-                );
-              } else if (push is FetchNameAndPictureStateLoaded) {
-                return Padding(
-                  padding: const EdgeInsets.only(right: 266),
-                  child: Text(
-                    "${push.user.firstName}${push.user.lastName} schedule",
-                    style: GoogleFonts.aleo(fontSize: 15),
-                  ),
-                );
-              } else if (push is FetchNameAndPictureStateError) {
-                return Padding(
-                  padding: const EdgeInsets.only(right: 266),
-                  child: Text(
-                    "Error found name",
-                    style: GoogleFonts.aleo(fontSize: 15),
-                  ),
-                );
-              }
-            } on PlatformException catch (e) {
-              return alerts.ifErrors(e.message.toString());
-            }
-            return const Text('Data');
-          },
-        ));
-  }
-}
-
-class AgentSifts extends StatelessWidget {
-  const AgentSifts({
-    super.key,
-    required this.shifts,
-  });
-
-  final List<String> shifts;
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      children: shifts.map((dailySifts) {
-        return Expanded(
-          child: Padding(
-            padding: const EdgeInsets.symmetric(vertical: 5),
-            child: Container(
-              color: csGrey,
-              child: Text(
-                dailySifts,
-                textAlign: TextAlign.center,
-                style: const TextStyle(
-                    color: Colors.white, fontWeight: FontWeight.bold),
-              ),
-            ),
-          ),
-        );
-      }).toList(),
-    );
-  }
-}
-
-class Weeks extends StatelessWidget {
-  const Weeks({
-    super.key,
-    required this.daysOfWeek,
-  });
-
-  final List<String> daysOfWeek;
-
-  @override
-  Widget build(BuildContext context) {
-    double width = MediaQuery.of(context).size.width;
-    return SizedBox(
-        height: 30,
-        width: width,
-        child: ListView(
-          shrinkWrap: true,
-          scrollDirection: Axis.horizontal,
-          children: daysOfWeek.map((day) {
-            return Container(
-              width: width / 7,
-              color: skyer,
-              child: Center(
-                child: Text(
-                  day,
-                  textAlign: TextAlign.center,
-                  style: const TextStyle(
-                      fontSize: 10,
-                      color: Colors.white,
-                      fontWeight: FontWeight.bold),
-                ),
-              ),
-            );
-          }).toList(),
-        ));
   }
 }
 

@@ -13,12 +13,15 @@ class Loader {
             width: 120,
             height: 120,
             child: Center(
-                child: LoadingAnimationWidget.inkDrop(color: lime, size: 45)),
+                child: LoadingAnimationWidget.progressiveDots(
+                    color: lime, size: 55)),
           )),
     );
   }
 
-  static void stopLaoding() {
+  static void stopLoading() {
     Navigator.of(Get.overlayContext!).pop();
   }
 }
+
+// inkDrop(color: lime, size: 45)

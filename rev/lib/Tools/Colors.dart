@@ -14,3 +14,4 @@ const Color csGrey = Color.fromARGB(255, 126, 126, 126);
 const Color white = Color.fromARGB(255, 255, 255, 255);
 const Color green = Color.fromARGB(255, 0, 212, 0);
 const Color yellow = Color.fromARGB(255, 255, 242, 0);
+const Color non = Colors.transparent;

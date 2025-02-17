@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 
-class Community extends StatefulWidget {
-  const Community({super.key});
+class Cart extends StatefulWidget {
+  const Cart({super.key});
 
   @override
-  State<Community> createState() => _CommunityState();
+  State<Cart> createState() => _CommunityState();
 }
 
-class _CommunityState extends State<Community> {
+class _CommunityState extends State<Cart> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(

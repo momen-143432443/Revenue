@@ -15,14 +15,14 @@ class SignOutCopntroller extends GetxController {
     try {
       Loader.startLoading();
       await out.signOut();
-      Loader.stopLaoding();
+      Loader.stopLoading();
       Get.offAll(() => const SignIn());
     } on FirebaseAuthException catch (e) {
       alerts.ifErrors(e.message.toString());
-      Loader.stopLaoding();
+      Loader.stopLoading();
     } on PlatformException catch (e) {
       alerts.ifErrors(e.message.toString());
-      Loader.stopLaoding();
+      Loader.stopLoading();
     } catch (e) {
       throw 'Somthing went wrong, please try later';
     }

@@ -65,8 +65,7 @@ class PushToSignIn extends StatelessWidget {
             onTap: () => Get.back(),
             child: Text(
               "Press here to sign in",
-              style:
-                  GoogleFonts.aleo(color: skyer, fontWeight: FontWeight.w600),
+              style: GoogleFonts.aleo(color: lime, fontWeight: FontWeight.w600),
             ))
       ],
     );

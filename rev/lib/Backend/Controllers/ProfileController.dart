@@ -8,6 +8,7 @@ class ProfileController extends GetxController {
   Rx<UserModel> user = UserModel.userDataEmpty().obs;
   final showUserData = Get.put(UserRepo());
   final userRepo = Get.put(UserRepo());
+  final liked = true.obs;
   @override
   void onInit() {
     super.onInit(); // Call super if required by the library

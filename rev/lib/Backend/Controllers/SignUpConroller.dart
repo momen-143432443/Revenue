@@ -10,7 +10,7 @@ import 'package:get/get.dart';
 
 class SignupConroller extends GetxController {
   static SignupConroller get instance => Get.find();
-  final baseUrl = "http://192.168.1.3:3000/";
+  final baseUrl = "http://192.168.1.8:3000/";
   final email = TextEditingController();
   final password = TextEditingController();
   final firstName = TextEditingController();
@@ -74,7 +74,7 @@ class SignupConroller extends GetxController {
           Get.offAll(() => const NaviBar());
         }).onError(
           (error, stackTrace) {
-            Loader.stopLaoding();
+            Loader.stopLoading();
             alerts.ifErrors(error.toString());
             // alerts.exceptions('Somthing went wrong');
             print(error.toString());
@@ -95,7 +95,7 @@ class SignupConroller extends GetxController {
         // }
       } on FirebaseAuthException catch (e) {
         alerts.ifErrors(e.message.toString());
-        Loader.stopLaoding();
+        Loader.stopLoading();
       }
     }
   }

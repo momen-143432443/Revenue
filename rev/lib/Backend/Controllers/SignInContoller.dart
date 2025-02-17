@@ -20,12 +20,12 @@ class SigninContoller extends GetxController {
       await AuthenticationRepo.instance
           .signInWithEmail(email.text.trim(), password.text.trim());
 
-      Loader.stopLaoding();
+      Loader.stopLoading();
 
       Get.offAll(() => const NaviBar());
     } on FirebaseAuthException catch (e) {
       alerts.ifErrors(e.message.toString());
-      Loader.stopLaoding();
+      Loader.stopLoading();
     }
   }
 }
