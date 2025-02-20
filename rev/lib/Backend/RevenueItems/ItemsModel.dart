@@ -7,9 +7,11 @@ class RevenueIemsModel {
   String imgAdress;
   Color itemColor;
   bool liked;
+  bool addToCart;
 
   RevenueIemsModel(
       {required this.name,
+      required this.addToCart,
       required this.model,
       required this.price,
       required this.imgAdress,
