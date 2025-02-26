@@ -11,7 +11,7 @@ class FetchNameAndPictureStateLoading extends FetchNameAndPictureState {
 }
 
 class FetchNameAndPictureStateLoaded extends FetchNameAndPictureState {
-  final UserModel user;
+  final List<UserModel> user;
   FetchNameAndPictureStateLoaded(this.user);
   List<Object?> get props => [user];
 }

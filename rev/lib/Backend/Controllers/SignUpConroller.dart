@@ -10,7 +10,7 @@ import 'package:get/get.dart';
 
 class SignupConroller extends GetxController {
   static SignupConroller get instance => Get.find();
-  final baseUrl = "http://192.168.1.8:3000/";
+  final baseUrl = "http://192.168.1.6:3000/";
   final email = TextEditingController();
   final password = TextEditingController();
   final firstName = TextEditingController();
@@ -46,12 +46,6 @@ class SignupConroller extends GetxController {
         firstName.text.trim().isNotEmpty &&
         lastName.text.trim().isEmpty) {
       return alerts.lastNameRequrie();
-    } else if (email.text.trim().isNotEmpty &&
-        password.text.trim().isNotEmpty &&
-        firstName.text.trim().isNotEmpty &&
-        lastName.text.trim().isNotEmpty &&
-        firstName.text.length < 6) {
-      return alerts.nameLenRequrie();
     } else if (email.text.trim().isNotEmpty &&
         password.text.trim().isNotEmpty &&
         firstName.text.trim().isNotEmpty &&

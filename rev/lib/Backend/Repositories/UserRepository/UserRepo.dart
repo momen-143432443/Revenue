@@ -1,4 +1,4 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
+/* import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:css/Backend/AuthenticationControls/AuthenticationRepo.dart';
 import 'package:css/Backend/Repositories/UserRepository/UserModel.dart';
 import 'package:get/get.dart';
@@ -25,7 +25,8 @@ class UserRepo extends GetxController {
           .doc(AuthenticationRepo().authUser?.uid)
           .get();
       if (document.exists) {
-        return UserModel.fromSnapshot(document);
+        return UserModel.userDataEmpty();
+        // return UserModel.fromSnapshot(document);
       } else {
         return UserModel.userDataEmpty();
       }
@@ -36,3 +37,4 @@ class UserRepo extends GetxController {
     }
   }
 }
+ */

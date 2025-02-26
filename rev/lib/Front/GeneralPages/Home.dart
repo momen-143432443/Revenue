@@ -1,14 +1,10 @@
-import 'package:css/Backend/Blocs/FetchNameAndPictureBloc/FetchNameAndPictureEvent.dart';
-import 'package:css/Backend/Blocs/FetchNameAndPictureBloc/FetchNameAndPictureIntegration.dart';
-import 'package:css/Backend/Blocs/FetchNameAndPictureBloc/FetchNameAndPictureState.dart';
 import 'package:css/Backend/Controllers/ProfileController.dart';
 import 'package:css/Backend/Controllers/SignOutController.dart';
+import 'package:css/Backend/Repositories/UserRepository/UserModel.dart';
 import 'package:css/Backend/RevenueItems/ItemsModel.dart';
 import 'package:css/Tools/Alerts.dart';
 import 'package:css/Tools/Colors.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:iconsax/iconsax.dart';
@@ -428,31 +424,27 @@ class UsernameAndProfilePic extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const PopupProfile();
-  }
-}
-
-class PopupProfile extends StatelessWidget {
-  const PopupProfile({
-    super.key,
-  });
-
-  @override
-  Widget build(BuildContext context) {
     final tkOut = Get.put(SignOutCopntroller());
     final Alerts alerts = Alerts();
-    return MultiBlocProvider(
-        providers: [
-          BlocProvider(
-              create: (context) =>
-                  FetchNameAndPictureIntegration(ProfileController())
-                    ..add(FetchNameAndPictureEventLoading()))
-        ],
-        child: BlocBuilder<FetchNameAndPictureIntegration,
-            FetchNameAndPictureState>(
-          builder: (context, state) {
-            try {
-              if (state is FetchNameAndPictureStateLoading) {
+    final userData = Get.put(ProfileController());
+    final siz = MediaQuery.of(context).size;
+    return FutureBuilder<List<UserModel>>(
+      future: userData.fetchUserData(),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return Container(
+              margin: EdgeInsets.only(right: siz.width / 1.2, top: 10),
+              child: const Text('Loading..'));
+        } else if (snapshot.hasError) {
+          return alerts.ifErrors(snapshot.error.toString());
+        } else {
+          print(snapshot.data);
+          List<UserModel> users = snapshot.data!;
+          return ListView.builder(
+              shrinkWrap: true,
+              itemCount: users.length,
+              itemBuilder: (context, index) {
+                final user = users[index];
                 return Padding(
                   padding:
                       const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
@@ -460,23 +452,7 @@ class PopupProfile extends StatelessWidget {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Text(
-                        'Loading..',
-                        style: GoogleFonts.aleo(fontSize: 23),
-                      ),
-                      const CircleAvatar(radius: 25),
-                    ],
-                  ),
-                );
-              }
-              if (state is FetchNameAndPictureStateLoaded) {
-                return Padding(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        '${state.user.firstName} ${state.user.lastName}',
+                        '${user.firstName} ${user.lastName}',
                         style: GoogleFonts.aleo(fontSize: 23),
                       ),
                       PopupMenuButton<String>(
@@ -502,17 +478,9 @@ class PopupProfile extends StatelessWidget {
                     ],
                   ),
                 );
-              }
-              if (state is FetchNameAndPictureStateError) {
-                return const Center(child: Text('Somthing went wrong'));
-              }
-            } on PlatformException catch (e) {
-              alerts.ifErrors(e.toString());
-            } catch (e) {
-              throw 'Somthing went wrong';
-            }
-            return Container();
-          },
-        ));
+              });
+        }
+      },
+    );
   }
 }
