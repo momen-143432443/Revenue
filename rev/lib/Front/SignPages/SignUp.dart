@@ -1,4 +1,4 @@
-import 'package:css/Backend/Controllers/SignUpConroller.dart';
+import 'package:css/Backend/Controllers/ForUserControllers/SignUpConroller.dart';
 import 'package:css/Tools/Colors.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -15,12 +15,14 @@ class Signup extends StatefulWidget {
 }
 
 class _SignupState extends State<Signup> {
+  bool passVisible = true;
   @override
   Widget build(BuildContext context) {
     double width = MediaQuery.of(context).size.width;
     double height = MediaQuery.of(context).size.height;
 
     return Scaffold(
+      backgroundColor: white,
       body: SafeArea(
           child: SingleChildScrollView(
         scrollDirection: Axis.vertical,
@@ -35,7 +37,7 @@ class _SignupState extends State<Signup> {
               sizeBox(100),
               const Email(),
               sizeBox(15),
-              const Password(),
+              password(),
               sizeBox(15),
               const FirstnameAndLastName(),
               sizeBox(45),
@@ -48,6 +50,43 @@ class _SignupState extends State<Signup> {
       )),
     );
   }
+
+  Padding password() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 10),
+      child: TextFormField(
+        controller: controller.password,
+        cursorRadius: const Radius.circular(3),
+        autocorrect: passVisible,
+        enableInteractiveSelection: true,
+        obscureText: true,
+        cursorColor: Colors.white,
+        style: const TextStyle(color: black),
+        decoration: InputDecoration(
+          suffixIcon: togglePassword(),
+          labelText: 'Password',
+          labelStyle: const TextStyle(color: black),
+          filled: true,
+          floatingLabelBehavior: FloatingLabelBehavior.never,
+          border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12.0),
+              borderSide: const BorderSide(width: 0, style: BorderStyle.none)),
+        ),
+      ),
+    );
+  }
+
+  Widget togglePassword() {
+    return GestureDetector(
+      onTap: () {
+        setState(() {
+          passVisible = !passVisible;
+        });
+      },
+      child:
+          passVisible ? const Icon(Iconsax.eye_slash) : const Icon(Iconsax.eye),
+    );
+  }
 }
 
 class PushToSignIn extends StatelessWidget {
@@ -57,17 +96,21 @@ class PushToSignIn extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        const Text(" have an account? "),
-        GestureDetector(
-            onTap: () => Get.back(),
-            child: Text(
-              "Press here to sign in",
-              style: GoogleFonts.aleo(color: lime, fontWeight: FontWeight.w600),
-            ))
-      ],
+    return Container(
+      margin: const EdgeInsets.only(bottom: 12),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          const Text(" have an account? "),
+          GestureDetector(
+              onTap: () => Get.back(),
+              child: Text(
+                "Press here to sign in",
+                style: GoogleFonts.aleo(
+                    color: greenColor, fontWeight: FontWeight.w600),
+              ))
+        ],
+      ),
     );
   }
 }
@@ -156,38 +199,6 @@ class FirstnameAndLastName extends StatelessWidget {
   }
 }
 
-class Password extends StatelessWidget {
-  const Password({
-    super.key,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 10),
-      child: TextFormField(
-        controller: controller.password,
-        cursorRadius: const Radius.circular(3),
-        autocorrect: true,
-        enableInteractiveSelection: true,
-        obscureText: true,
-        cursorColor: Colors.white,
-        style: const TextStyle(color: black),
-        decoration: InputDecoration(
-          suffixIcon: const Icon(Iconsax.lock, color: black),
-          labelText: 'Password',
-          labelStyle: const TextStyle(color: black),
-          filled: true,
-          floatingLabelBehavior: FloatingLabelBehavior.never,
-          border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12.0),
-              borderSide: const BorderSide(width: 0, style: BorderStyle.none)),
-        ),
-      ),
-    );
-  }
-}
-
 class Email extends StatelessWidget {
   const Email({
     super.key,
@@ -232,7 +243,7 @@ class CsSwaps extends StatelessWidget {
   Widget build(BuildContext context) {
     return SizedBox(
       width: width / 1.2,
-      height: height / 7 + 26,
+      height: height / 5,
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [

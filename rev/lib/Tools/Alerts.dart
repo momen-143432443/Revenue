@@ -5,31 +5,117 @@ import 'package:get/get_navigation/src/extension_navigation.dart';
 double widthOfButton = MediaQuery.of(navigator!.context).size.width;
 
 class Alerts {
-  ifErrors(String e) {
+  ifErrors(String e) =>
+      ScaffoldMessenger.of(navigator!.context).showSnackBar(SnackBar(
+        dismissDirection: DismissDirection.down,
+        width: widthOfButton / 1.3 + 20,
+        behavior: SnackBarBehavior.floating,
+        backgroundColor: white,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
+        content: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisAlignment: MainAxisAlignment.spaceAround,
+          children: [
+            const Icon(
+              Icons.error_outline,
+              color: redColor,
+            ),
+            Text(
+              e,
+              style: const TextStyle(color: redColor),
+            ),
+            const Text(
+              '.',
+              style: TextStyle(color: Colors.transparent, fontSize: 1),
+            )
+          ],
+        ),
+      ));
+
+  userInvaild() {
     return ScaffoldMessenger.of(navigator!.context).showSnackBar(SnackBar(
       dismissDirection: DismissDirection.down,
       width: widthOfButton / 1.3 + 20,
       behavior: SnackBarBehavior.floating,
       backgroundColor: white,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
-      content: Row(
+      content: const Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisAlignment: MainAxisAlignment.spaceAround,
         children: [
-          const Icon(
+          Icon(
             Icons.error_outline,
             color: redColor,
           ),
           Text(
-            e.toString(),
+            "There's no account with this email.",
             style: TextStyle(color: redColor),
           ),
-          const Text(
+          Text(
             '.',
             style: TextStyle(color: Colors.transparent, fontSize: 1),
           )
         ],
       ),
+      duration: const Duration(seconds: 2),
+    ));
+  }
+
+  emailAlreadyUsed() {
+    return ScaffoldMessenger.of(navigator!.context).showSnackBar(SnackBar(
+      dismissDirection: DismissDirection.down,
+      width: widthOfButton / 1.3 + 20,
+      behavior: SnackBarBehavior.floating,
+      backgroundColor: white,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
+      content: const Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisAlignment: MainAxisAlignment.spaceAround,
+        children: [
+          Icon(
+            Icons.error_outline,
+            color: redColor,
+          ),
+          Text(
+            "Email Already Used.",
+            style: TextStyle(color: redColor),
+          ),
+          Text(
+            '.',
+            style: TextStyle(color: Colors.transparent, fontSize: 1),
+          )
+        ],
+      ),
+      duration: const Duration(seconds: 2),
+    ));
+  }
+
+  invalidEmail() {
+    return ScaffoldMessenger.of(navigator!.context).showSnackBar(SnackBar(
+      dismissDirection: DismissDirection.down,
+      width: widthOfButton / 1.3 + 20,
+      behavior: SnackBarBehavior.floating,
+      backgroundColor: white,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
+      content: const Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisAlignment: MainAxisAlignment.spaceAround,
+        children: [
+          Icon(
+            Icons.error_outline,
+            color: redColor,
+          ),
+          Text(
+            "Email Already Used.",
+            style: TextStyle(color: redColor),
+          ),
+          Text(
+            '.',
+            style: TextStyle(color: Colors.transparent, fontSize: 1),
+          )
+        ],
+      ),
+      duration: const Duration(seconds: 2),
     ));
   }
 
@@ -49,7 +135,7 @@ class Alerts {
             color: redColor,
           ),
           Text(
-            "Eamil is require.",
+            "Email is require.",
             style: TextStyle(color: redColor),
           ),
           Text(
@@ -108,6 +194,35 @@ class Alerts {
           ),
           Text(
             "Password is require.",
+            style: TextStyle(color: redColor),
+          ),
+          Text(
+            '.',
+            style: TextStyle(color: Colors.transparent, fontSize: 1),
+          )
+        ],
+      ),
+      duration: const Duration(seconds: 2),
+    ));
+  }
+
+  passwordIncorrect() {
+    return ScaffoldMessenger.of(navigator!.context).showSnackBar(SnackBar(
+      dismissDirection: DismissDirection.down,
+      width: widthOfButton / 1.3 + 20,
+      behavior: SnackBarBehavior.floating,
+      backgroundColor: white,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
+      content: const Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisAlignment: MainAxisAlignment.spaceAround,
+        children: [
+          Icon(
+            Icons.error_outline,
+            color: redColor,
+          ),
+          Text(
+            "Password Is Incorrect.",
             style: TextStyle(color: redColor),
           ),
           Text(
@@ -227,6 +342,122 @@ class Alerts {
             style: const TextStyle(color: redColor),
           ),
           const Text(
+            '.',
+            style: TextStyle(color: Colors.transparent, fontSize: 1),
+          )
+        ],
+      ),
+      duration: const Duration(seconds: 2),
+    ));
+  }
+
+  addItemInTheBag() {
+    return ScaffoldMessenger.of(navigator!.context).showSnackBar(SnackBar(
+      dismissDirection: DismissDirection.down,
+      width: widthOfButton / 1.3 + 20,
+      behavior: SnackBarBehavior.floating,
+      backgroundColor: white,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
+      content: const Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisAlignment: MainAxisAlignment.spaceAround,
+        children: [
+          Icon(
+            Icons.error_outline,
+            color: greenColor,
+          ),
+          Text(
+            "Successfully added in your bag.",
+            style: TextStyle(color: green),
+          ),
+          Text(
+            '.',
+            style: TextStyle(color: Colors.transparent, fontSize: 1),
+          )
+        ],
+      ),
+      duration: const Duration(seconds: 2),
+    ));
+  }
+
+  deleteItemFromTheBag() {
+    return ScaffoldMessenger.of(navigator!.context).showSnackBar(SnackBar(
+      dismissDirection: DismissDirection.down,
+      width: widthOfButton / 1.3 + 20,
+      behavior: SnackBarBehavior.floating,
+      backgroundColor: white,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
+      content: const Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisAlignment: MainAxisAlignment.spaceAround,
+        children: [
+          Icon(
+            Icons.error_outline,
+            color: greenColor,
+          ),
+          Text(
+            "Successfully Deleted.",
+            style: TextStyle(color: green),
+          ),
+          Text(
+            '.',
+            style: TextStyle(color: Colors.transparent, fontSize: 1),
+          )
+        ],
+      ),
+      duration: const Duration(seconds: 2),
+    ));
+  }
+
+  alreadyInTheBag() {
+    return ScaffoldMessenger.of(navigator!.context).showSnackBar(SnackBar(
+      dismissDirection: DismissDirection.down,
+      width: widthOfButton / 1.3 + 20,
+      behavior: SnackBarBehavior.floating,
+      backgroundColor: white,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
+      content: const Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisAlignment: MainAxisAlignment.spaceAround,
+        children: [
+          Icon(
+            Icons.error_outline,
+            color: redColor,
+          ),
+          Text(
+            "Product already in your bag.",
+            style: TextStyle(color: redColor),
+          ),
+          Text(
+            '.',
+            style: TextStyle(color: Colors.transparent, fontSize: 1),
+          )
+        ],
+      ),
+      duration: const Duration(seconds: 2),
+    ));
+  }
+
+  purchaseSuccessfully() {
+    return ScaffoldMessenger.of(navigator!.context).showSnackBar(SnackBar(
+      dismissDirection: DismissDirection.down,
+      width: widthOfButton / 1.3 + 20,
+      behavior: SnackBarBehavior.floating,
+      backgroundColor: white,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
+      content: const Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisAlignment: MainAxisAlignment.spaceAround,
+        children: [
+          Icon(
+            Icons.error_outline,
+            color: greenColor,
+          ),
+          Text(
+            "Purchase Successfully",
+            style: TextStyle(color: greenColor),
+          ),
+          Text(
             '.',
             style: TextStyle(color: Colors.transparent, fontSize: 1),
           )

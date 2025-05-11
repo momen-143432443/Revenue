@@ -45,10 +45,44 @@ dependencies:
   loading_animation_widget: ^1.2.1
   equatable: ^2.0.5
   flutter_bloc: ^8.1.6
-  excel: ^4.0.6
   http: ^1.2.2
   font_awesome_flutter: ^10.8.0
   curved_navigation_bar: ^1.0.6
+  shared_preferences: ^2.5.3
+  animate_do: ^4.2.0
+  image_picker: ^1.1.2
+  flutter_launcher_icons: ^0.14.3
+  flutter_native_splash: ^2.4.6
+  card_loading: ^0.3.2
+
+
+flutter_native_splash:
+  color: '#ffffff'
+  image: 'assets/icon/Revenue_icon.png'
+  android: true
+  ios: true
+  android_gravity: center
+  ios_content_mode: scaleAspectFit
+
+flutter_launcher_icons:
+  android: "launcher_icon"
+  ios: true
+  image_path: "assets/icon/Revenue_logo.png"
+  icon_size: 192
+  min_sdk_android: 21 # android min sdk min:16, default 21
+  web:
+    generate: true
+    image_path: "assets/icon/Revenue_logo.png"
+    background_color: "#hexcode"
+    theme_color: "#hexcode"
+  windows:
+    generate: true
+    image_path: "assets/icon/Revenue_logo.png"
+    icon_size: 48 # min:48, max:256, default: 48
+  macos:
+    generate: true
+    image_path: "assets/icon/Revenue_logo.png"
+    # remove_alpha_ios: true
 
 dev_dependencies:
   flutter_test:
@@ -74,12 +108,8 @@ flutter:
 
   # To add assets to your application, add an assets section, like this:
   assets:
-    - assets/Nike Dunk High By You Custom Men's Shoes.jpg
-    - assets/Nike Men Impact 4 Basketball Shoes.jpg
-    - assets/Nike  Sportswear Club Mens T Shirt  Regular Fit T-Shirts.webp
-    - assets/Nike Men's Dri-FIT Training T-Shirt.jpg
-    - assets/nike men sportswear storm fit windrunner hooded jacket black black sail.jpg
-    - assets/Nike Men's Black Full-Zip Chest Swoosh Jacket.webp
+    - assets/images/
+    - assets/icon/
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images

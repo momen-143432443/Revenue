@@ -1,4 +1,6 @@
-import 'package:css/Backend/Controllers/SignInContoller.dart';
+import 'dart:math';
+
+import 'package:css/Backend/Controllers/ForUserControllers/SignInContoller.dart';
 import 'package:css/Front/SignPages/SignUp.dart';
 import 'package:css/Tools/Colors.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -17,56 +19,164 @@ class SignIn extends StatefulWidget {
 }
 
 class _SignInState extends State<SignIn> {
+  bool passVisible = true;
   @override
   Widget build(BuildContext context) {
     double width = MediaQuery.of(context).size.width;
     double height = MediaQuery.of(context).size.height;
+
     return Scaffold(
+      backgroundColor: white,
       body: SafeArea(
           child: SingleChildScrollView(
         child: SizedBox(
           child: Column(
             children: [
               sizeBox(50),
-              CsSwaps(
-                width: width,
-                height: height,
-              ),
+              revenueIcon(width, height),
               sizeBox(100),
-              const Email(),
+              email(),
               const SizedBox(height: 15),
-              const Password(),
+              password(),
               sizeBox(10),
-              const ForgetPassword(),
+              forgetPassword(),
               sizeBox(45),
-              Continue(width: width),
+              saveAndContinue(width),
               const Divider(),
-              const TryToQuickSign(),
+              tryToQuickSign(),
               sizeBox(15),
               GoogleSign(width: width),
               const SizedBox(height: 5),
               FacebookSign(width: width),
               sizeBox(100),
               sizeBox(height / 22),
-              const PushToSignUp()
+              Container(
+                margin: const EdgeInsets.only(bottom: 12),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Text("Don't have an account? "),
+                    GestureDetector(
+                        onTap: () => Get.to(() => const Signup()),
+                        child: Text(
+                          "Press here to sign up",
+                          style: GoogleFonts.aleo(
+                              color: greenColor, fontWeight: FontWeight.w600),
+                        ))
+                  ],
+                ),
+              )
             ],
           ),
         ),
       )),
     );
   }
-}
 
-class TryToQuickSign extends StatelessWidget {
-  const TryToQuickSign({
-    super.key,
-  });
-
-  @override
-  Widget build(BuildContext context) {
+  Text tryToQuickSign() {
     return Text(
       "Try to quick sign",
       style: GoogleFonts.aleo(fontWeight: FontWeight.w600),
+    );
+  }
+
+  SizedBox saveAndContinue(double width) {
+    return SizedBox(
+        width: width / 1.2,
+        child: ElevatedButton(
+            style: const ButtonStyle(
+                backgroundColor: WidgetStatePropertyAll(grey)),
+            onPressed: () async => await controller.signInTrigger(),
+            child: Text(
+              'Continue',
+              style: GoogleFonts.aleo(color: black),
+            )));
+  }
+
+  GestureDetector forgetPassword() {
+    return GestureDetector(
+        onTap: () => print('push to forget password'),
+        child: Padding(
+          padding: const EdgeInsets.only(left: 235),
+          child: Text('Forget password ?', style: GoogleFonts.aleo()),
+        ));
+  }
+
+  SizedBox revenueIcon(double width, double height) {
+    return SizedBox(
+      width: width / 1.2,
+      height: height / 5,
+      child: Center(
+        child: Text(
+          'R',
+          style: GoogleFonts.italianno(
+              fontSize: 115, color: lime, fontWeight: FontWeight.w500),
+        ),
+      ),
+    );
+  }
+
+  Padding email() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 10),
+      child: TextFormField(
+        controller: controller.email,
+        cursorRadius: const Radius.circular(3),
+        autocorrect: true,
+        enableInteractiveSelection: true,
+        cursorColor: Colors.white,
+        style: const TextStyle(color: black),
+        decoration: InputDecoration(
+          suffixIcon: const Icon(Icons.email_outlined, color: black),
+          labelText: 'Email',
+          labelStyle: const TextStyle(color: black),
+          filled: true,
+          floatingLabelBehavior: FloatingLabelBehavior.never,
+          border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12.0),
+              borderSide: const BorderSide(width: 0, style: BorderStyle.none)),
+        ),
+      ),
+    );
+  }
+
+  Padding password() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 10),
+      child: TextFormField(
+        controller: controller.password,
+        cursorRadius: const Radius.circular(3),
+        autocorrect: true,
+        enableInteractiveSelection: true,
+        obscureText: passVisible,
+        cursorColor: Colors.white,
+        style: const TextStyle(color: black),
+        decoration: InputDecoration(
+          suffixIcon: togglePassword(),
+          labelText: 'Password',
+          labelStyle: const TextStyle(color: black),
+          filled: true,
+          floatingLabelBehavior: FloatingLabelBehavior.never,
+          border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12.0),
+              borderSide: const BorderSide(width: 0, style: BorderStyle.none)),
+        ),
+      ),
+    );
+  }
+
+  Widget togglePassword() {
+    return GestureDetector(
+      onTap: () {
+        setState(() {
+          passVisible = !passVisible;
+        });
+      },
+      child: passVisible
+          ? const Icon(
+              Iconsax.eye_slash,
+            )
+          : const Icon(Iconsax.eye),
     );
   }
 }
@@ -124,159 +234,6 @@ class GoogleSign extends StatelessWidget {
             color: white,
           ),
         ));
-  }
-}
-
-class PushToSignUp extends StatelessWidget {
-  const PushToSignUp({
-    super.key,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        const Text("Don't have an account? "),
-        GestureDetector(
-            onTap: () => Get.to(() => const Signup()),
-            child: Text(
-              "Press here to sign up",
-              style: GoogleFonts.aleo(color: lime, fontWeight: FontWeight.w600),
-            ))
-      ],
-    );
-  }
-}
-
-class Continue extends StatelessWidget {
-  const Continue({
-    super.key,
-    required this.width,
-  });
-
-  final double width;
-
-  @override
-  Widget build(BuildContext context) {
-    return SizedBox(
-        width: width / 1.2,
-        child: ElevatedButton(
-            style: const ButtonStyle(
-                backgroundColor: WidgetStatePropertyAll(grey)),
-            onPressed: () async => await controller.signInTrigger(),
-            child: Text(
-              'Continue',
-              style: GoogleFonts.aleo(color: black),
-            )));
-  }
-}
-
-class ForgetPassword extends StatelessWidget {
-  const ForgetPassword({
-    super.key,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-        onTap: () => print('push to forget password'),
-        child: Padding(
-          padding: const EdgeInsets.only(left: 235),
-          child: Text('Forget password ?', style: GoogleFonts.aleo()),
-        ));
-  }
-}
-
-class Password extends StatelessWidget {
-  const Password({
-    super.key,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 10),
-      child: TextFormField(
-        controller: controller.password,
-        cursorRadius: const Radius.circular(3),
-        autocorrect: true,
-        enableInteractiveSelection: true,
-        obscureText: true,
-        cursorColor: Colors.white,
-        style: const TextStyle(color: black),
-        decoration: InputDecoration(
-          suffixIcon: const Icon(Iconsax.lock, color: black),
-          labelText: 'Password',
-          labelStyle: const TextStyle(color: black),
-          filled: true,
-          floatingLabelBehavior: FloatingLabelBehavior.never,
-          border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12.0),
-              borderSide: const BorderSide(width: 0, style: BorderStyle.none)),
-        ),
-      ),
-    );
-  }
-}
-
-class Email extends StatelessWidget {
-  const Email({
-    super.key,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 10),
-      child: TextFormField(
-        controller: controller.email,
-        cursorRadius: const Radius.circular(3),
-        autocorrect: true,
-        enableInteractiveSelection: true,
-        cursorColor: Colors.white,
-        style: const TextStyle(color: black),
-        decoration: InputDecoration(
-          suffixIcon: const Icon(Icons.email_outlined, color: black),
-          labelText: 'Email',
-          labelStyle: const TextStyle(color: black),
-          filled: true,
-          floatingLabelBehavior: FloatingLabelBehavior.never,
-          border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12.0),
-              borderSide: const BorderSide(width: 0, style: BorderStyle.none)),
-        ),
-      ),
-    );
-  }
-}
-
-class CsSwaps extends StatelessWidget {
-  const CsSwaps({
-    super.key,
-    required this.width,
-    required this.height,
-  });
-
-  final double width;
-  final double height;
-
-  @override
-  Widget build(BuildContext context) {
-    return SizedBox(
-      width: width / 1.2,
-      height: height / 7 + 26,
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Text(
-            'R',
-            style: GoogleFonts.italianno(
-                fontSize: 115, color: lime, fontWeight: FontWeight.w500),
-          ),
-        ],
-      ),
-    );
   }
 }
 

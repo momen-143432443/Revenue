@@ -1,6 +1,7 @@
 import 'package:css/Backend/AuthenticationControls/AuthenticationRepo.dart';
-import 'package:css/Front/SignPages/Signin.dart';
+import 'package:css/Front/SplashScreen/Splashscreen.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:firebase_core/firebase_core.dart';
 
@@ -8,6 +9,7 @@ final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  SystemChrome.setEnabledSystemUIMode(SystemUiMode.leanBack);
   await Firebase.initializeApp(
       options: const FirebaseOptions(
     apiKey: 'AIzaSyA5TIyMbfdza19CZwJ_IZqnUlIxWiugrTo',
@@ -28,7 +30,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return const GetMaterialApp(
       debugShowCheckedModeBanner: false,
-      home: SignIn(),
+      home: SplashScreen(),
     );
   }
 }

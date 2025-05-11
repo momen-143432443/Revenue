@@ -33,17 +33,28 @@ class AuthenticationRepo extends GetxController {
       return await auth.createUserWithEmailAndPassword(
           email: email, password: password);
     } on FirebaseAuthException catch (e) {
-      alerts.ifErrors(e.message.toString());
+      print('Error: ${e.code} - ${e.message}');
+      if (e.code == "email-already-in-use") {
+        alerts.emailAlreadyUsed();
+      }
+      return null;
     }
-    return null;
   }
 
-  Future<UserCredential> signInWithEmail(String email, String password) async {
+  Future<UserCredential?> signInWithEmail(String email, String password) async {
     try {
       return await auth.signInWithEmailAndPassword(
           email: email, password: password);
     } on FirebaseAuthException catch (e) {
-      return alerts.ifErrors(e.message.toString());
+      print('Error: ${e.code} - ${e.message}');
+      if (e.code == "wrong-password") {
+        alerts.passwordIncorrect();
+      } else if (e.code == "email-already-in-use") {
+        alerts.emailAlreadyUsed();
+      } else if (e.code == "invalid-email") {
+        alerts.invalidEmail();
+      }
+      return null;
     }
   }
 
