@@ -1,13 +1,21 @@
+import 'dart:convert';
+
+import 'package:css/Backend/Blocs/FetchCartItemsBloc/DropItemsIntoHomeScreen/DropItemsIntoHomeScreenEvent.dart';
+import 'package:css/Backend/Blocs/FetchCartItemsBloc/DropItemsIntoHomeScreen/DropItemsIntoHomeScreenIntegration.dart';
+import 'package:css/Backend/Blocs/FetchCartItemsBloc/DropItemsIntoHomeScreen/DropItemsIntoHomeScreenState.dart';
 import 'package:css/Backend/Blocs/FetchCartItemsBloc/FetchNameAndPictureEvent.dart';
 import 'package:css/Backend/Blocs/FetchCartItemsBloc/FetchNameAndPictureIntegration.dart';
 import 'package:css/Backend/Blocs/FetchCartItemsBloc/FetchNameAndPictureState.dart';
+import 'package:css/Backend/Controllers/ForProductControllers/ShowAllItems.dart';
 import 'package:css/Backend/Controllers/ForUserControllers/ProfileController.dart';
 import 'package:css/Backend/Controllers/ForUserControllers/SignOutController.dart';
 import 'package:css/Backend/Infsructure/Models/ItemsModel.dart';
 import 'package:css/Front/Functions/AppMethods.dart';
+import 'package:css/Front/GeneralPages/SearchPage.dart';
 import 'package:css/Tools/Alerts.dart';
 import 'package:card_loading/card_loading.dart';
 import 'package:css/Tools/Colors.dart';
+import 'package:css/Tools/Constructures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get/get.dart';
@@ -19,6 +27,7 @@ import 'package:flutter/cupertino.dart';
 final controller = Get.put(ProfileController());
 final control = Get.put(SignOutCopntroller());
 final cartController = Get.put(AppMethods());
+final showItems = Get.put(ShowAllItems());
 
 class Home extends StatefulWidget {
   const Home({super.key});
@@ -30,32 +39,13 @@ class _HomeState extends State<Home> {
   int selectedFeature = 0;
   int selectItems = 1;
 
-  // Add to fav
-  void _toggleLikeFrommostTrending(int indeex) {
-    setState(() {
-      mostTrending[indeex].liked = !mostTrending[indeex].liked;
-    });
-  }
-
-  void _toggleLikeFromFeaturesItems(int indeex) {
-    setState(() {
-      itemsFeatures[indeex].liked = !itemsFeatures[indeex].liked;
-    });
-  }
-
-  void _toggleLikeFromNewItems(int indeex) {
-    setState(() {
-      newItemsOfRev[indeex].liked = !newItemsOfRev[indeex].liked;
-    });
-  }
-
   int selectedIndex = -1;
   @override
   Widget build(BuildContext context) {
     final siz = MediaQuery.of(context).size;
     SizedBox sizedBoxBewtweenTriggers = const SizedBox(width: 40);
     return Scaffold(
-      appBar: searchBarForItems(),
+      appBar: navigateToSearchPage(),
       backgroundColor: white,
       body: SafeArea(
           child: SingleChildScrollView(
@@ -72,7 +62,8 @@ class _HomeState extends State<Home> {
                 sizedBoxBewtweenTriggers,
                 NewItems(siz: siz),
                 newItemsInRevenue(siz),
-                UpcomingItems(siz: siz),
+                Shoes(siz: siz),
+                shoeSectionRevenue(siz),
                 const SizedBox(height: 15),
               ],
             ),
@@ -82,15 +73,147 @@ class _HomeState extends State<Home> {
     );
   }
 
-  AppBar searchBarForItems() {
+  AppBar navigateToSearchPage() {
     return AppBar(
+      forceMaterialTransparency: false,
+      excludeHeaderSemantics: false,
       surfaceTintColor: white,
       shadowColor: white,
       backgroundColor: white,
       toolbarHeight: 45,
       elevation: 0,
-      title: const CupertinoSearchTextField(
-        cursorWidth: 34,
+      title: CupertinoSearchTextField(
+        onTap: () => Get.to(const SearchPage()),
+      ),
+    );
+  }
+
+  MultiBlocProvider shoeSectionRevenue(Size siz) {
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider(
+            create: (context) => FetchCartItemsIntegration(AppMethods())
+              ..add(
+                FetchCartitemsEventLoading(),
+              )),
+      ],
+      child: BlocBuilder<FetchCartItemsIntegration, FetchCartItemsState>(
+        builder: (context, shoesSectionInRevenueState) {
+          final Alerts alerts = Alerts();
+          if (shoesSectionInRevenueState is FetchCartItemsStateLoading) {
+            return GridView.builder(
+              shrinkWrap: true,
+              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: 2,
+                  crossAxisSpacing: 4.0,
+                  mainAxisSpacing: 4.0),
+              itemCount: 2,
+              itemBuilder: (context, index) => CardLoading(
+                height: 200,
+                margin: EdgeInsets.symmetric(
+                    horizontal: siz.height * 0.005,
+                    vertical: siz.height * 0.01),
+                width: siz.width / 1.81,
+                borderRadius: const BorderRadius.all(Radius.circular(15)),
+              ),
+            );
+          } else if (shoesSectionInRevenueState is FetchCartItemsStateError) {
+            print(shoesSectionInRevenueState.err);
+            // alerts.ifErrors(shoesSectionInRevenueState.err);
+          } else if (shoesSectionInRevenueState is FetchCartItemsStateLoaded) {
+            return SizedBox(
+              height: siz.height / 2.3,
+              child: ListView.builder(
+                itemCount: shoesSection.length,
+                scrollDirection: Axis.horizontal,
+                itemBuilder: (context, idx) {
+                  RevenueIemsModel model = shoesSection[idx];
+                  final itemsBag = model;
+                  bool isSizedSelected = false;
+
+                  return GestureDetector(
+                      onTap: () {
+                        setState(() {
+                          SizedBox sizedBoxBewtweenTriggers =
+                              const SizedBox(width: 5);
+                          SizedBox sizedBoxBewtweenInfos =
+                              const SizedBox(height: 15);
+                          selectedIndex = idx;
+                          showModalBottomSheet(
+                              isScrollControlled: true,
+                              backgroundColor: white,
+                              enableDrag: true,
+                              shape: const RoundedRectangleBorder(
+                                  borderRadius:
+                                      BorderRadius.all(Radius.circular(5))),
+                              context: context,
+                              builder: (context) {
+                                return SizedBox(
+                                  height: siz.height / 1.6,
+                                  child: SingleChildScrollView(
+                                    child: Center(
+                                      child: Column(
+                                        children: [
+                                          nameItemInshowModalBottomSheet(
+                                              itemsBag),
+                                          imageItemInshowModalBottomSheet(
+                                              siz, itemsBag),
+                                          ///////////////////////////////////////
+                                          ////////////[Name of item]////////////
+                                          ///////////////////////////////////////
+                                          modelItemInshowModalBottomSheet(
+                                              itemsBag),
+
+                                          rateItemInshowModalBottomSheet(
+                                              siz, itemsBag),
+                                          sizedBoxBewtweenInfos,
+                                          /////////////////////////////////////////
+                                          ////////////////////////////////////////
+                                          ///////////////////////////////////////
+                                          colorsAvailableInshowModalBottomSheet(
+                                              itemsBag,
+                                              sizedBoxBewtweenTriggers),
+                                          const SizedBox(
+                                            height: 6,
+                                          ),
+                                          ///////////////////////////////////////
+                                          ////////////[Sizes of item]////////////
+                                          ///////////////////////////////////////
+                                          sizeItemInshowModalBottomSheet(
+                                              isSizedSelected, siz, itemsBag),
+                                          const SizedBox(
+                                            height: 6,
+                                          ),
+                                          /////////////////////////////////////////////////////
+                                          ////////////[Count of item & Add to cart]////////////
+                                          ////////////////////////////////////////////////////
+                                          countOfItemAndAddToCartOfNewItemsInRevenueInshowModalBottomSheet(
+                                              siz,
+                                              sizedBoxBewtweenTriggers,
+                                              idx)
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                                );
+                              });
+                        });
+                      },
+                      child: ContainerOfFetchingShoeSectionInRevenueItems(
+                        imgAdress: model.imgAdress,
+                        name: model.name,
+                        model: model.model,
+                        itemColor: model.itemColor,
+                        price: model.price,
+                        liked: shoesSection[idx].liked,
+                        idx: idx,
+                      ));
+                },
+              ),
+            );
+          }
+          return Container();
+        },
       ),
     );
   }
@@ -125,7 +248,7 @@ class _HomeState extends State<Home> {
               ),
             );
           } else if (newItemsInRevenueState is FetchCartItemsStateError) {
-            return alerts.ifErrors(newItemsInRevenueState.err);
+            print(newItemsInRevenueState.err);
           } else if (newItemsInRevenueState is FetchCartItemsStateLoaded) {
             return SizedBox(
               height: siz.height / 2.3,
@@ -138,137 +261,82 @@ class _HomeState extends State<Home> {
                   bool isSizedSelected = false;
 
                   return GestureDetector(
-                    onTap: () {
-                      setState(() {
-                        SizedBox sizedBoxBewtweenTriggers =
-                            const SizedBox(width: 5);
-                        SizedBox sizedBoxBewtweenInfos =
-                            const SizedBox(height: 15);
-                        selectedIndex = idx;
-                        showModalBottomSheet(
-                            isScrollControlled: true,
-                            backgroundColor: white,
-                            enableDrag: true,
-                            shape: const RoundedRectangleBorder(
-                                borderRadius:
-                                    BorderRadius.all(Radius.circular(5))),
-                            context: context,
-                            builder: (context) {
-                              return SizedBox(
-                                height: siz.height / 1.6,
-                                child: SingleChildScrollView(
-                                  child: Center(
-                                    child: Column(
-                                      children: [
-                                        nameItemInshowModalBottomSheet(
-                                            itemsBag),
-                                        imageItemInshowModalBottomSheet(
-                                            siz, itemsBag),
-                                        ///////////////////////////////////////
-                                        ////////////[Name of item]////////////
-                                        ///////////////////////////////////////
-                                        modelItemInshowModalBottomSheet(
-                                            itemsBag),
+                      onTap: () {
+                        setState(() {
+                          SizedBox sizedBoxBewtweenTriggers =
+                              const SizedBox(width: 5);
+                          SizedBox sizedBoxBewtweenInfos =
+                              const SizedBox(height: 15);
+                          selectedIndex = idx;
+                          showModalBottomSheet(
+                              isScrollControlled: true,
+                              backgroundColor: white,
+                              enableDrag: true,
+                              shape: const RoundedRectangleBorder(
+                                  borderRadius:
+                                      BorderRadius.all(Radius.circular(5))),
+                              context: context,
+                              builder: (context) {
+                                return SizedBox(
+                                  height: siz.height / 1.6,
+                                  child: SingleChildScrollView(
+                                    child: Center(
+                                      child: Column(
+                                        children: [
+                                          nameItemInshowModalBottomSheet(
+                                              itemsBag),
+                                          imageItemInshowModalBottomSheet(
+                                              siz, itemsBag),
+                                          ///////////////////////////////////////
+                                          ////////////[Name of item]////////////
+                                          ///////////////////////////////////////
+                                          modelItemInshowModalBottomSheet(
+                                              itemsBag),
 
-                                        rateItemInshowModalBottomSheet(
-                                            siz, itemsBag),
-                                        sizedBoxBewtweenInfos,
-                                        /////////////////////////////////////////
-                                        ////////////////////////////////////////
-                                        ///////////////////////////////////////
-                                        colorsAvailableInshowModalBottomSheet(
-                                            itemsBag, sizedBoxBewtweenTriggers),
-                                        const SizedBox(
-                                          height: 6,
-                                        ),
-                                        ///////////////////////////////////////
-                                        ////////////[Sizes of item]////////////
-                                        ///////////////////////////////////////
-                                        sizeItemInshowModalBottomSheet(
-                                            isSizedSelected, siz, itemsBag),
-                                        const SizedBox(
-                                          height: 6,
-                                        ),
-                                        /////////////////////////////////////////////////////
-                                        ////////////[Count of item & Add to cart]////////////
-                                        ////////////////////////////////////////////////////
-                                        countOfItemAndAddToCartOfNewItemsInRevenueInshowModalBottomSheet(
-                                            siz, sizedBoxBewtweenTriggers, idx)
-                                      ],
+                                          rateItemInshowModalBottomSheet(
+                                              siz, itemsBag),
+                                          sizedBoxBewtweenInfos,
+                                          /////////////////////////////////////////
+                                          ////////////////////////////////////////
+                                          ///////////////////////////////////////
+                                          colorsAvailableInshowModalBottomSheet(
+                                              itemsBag,
+                                              sizedBoxBewtweenTriggers),
+                                          const SizedBox(
+                                            height: 6,
+                                          ),
+                                          ///////////////////////////////////////
+                                          ////////////[Sizes of item]////////////
+                                          ///////////////////////////////////////
+                                          sizeItemInshowModalBottomSheet(
+                                              isSizedSelected, siz, itemsBag),
+                                          const SizedBox(
+                                            height: 6,
+                                          ),
+                                          /////////////////////////////////////////////////////
+                                          ////////////[Count of item & Add to cart]////////////
+                                          ////////////////////////////////////////////////////
+                                          countOfItemAndAddToCartOfNewItemsInRevenueInshowModalBottomSheet(
+                                              siz,
+                                              sizedBoxBewtweenTriggers,
+                                              idx)
+                                        ],
+                                      ),
                                     ),
                                   ),
-                                ),
-                              );
-                            });
-                      });
-                    },
-                    child: Container(
-                      margin: EdgeInsets.symmetric(
-                          horizontal: siz.height * 0.005,
-                          vertical: siz.height * 0.01),
-                      width: siz.width / 1.5,
-                      child: Stack(
-                        children: [
-                          Container(
-                            width: siz.width / 1.81,
-                            decoration: BoxDecoration(
-                                border: Border.all(
-                                  color: model.itemColor,
-                                ),
-                                borderRadius: BorderRadius.circular(20)),
-                          ),
-                          Positioned(
-                            top: 5,
-                            left: 20,
-                            child: Column(
-                              children: [
-                                Text(
-                                  model.name,
-                                  style: GoogleFonts.aleo(
-                                      color: black,
-                                      fontSize: 21,
-                                      fontWeight: FontWeight.w600),
-                                ),
-                                Text('${model.price} JOD',
-                                    style: GoogleFonts.aleo(
-                                        fontSize: 15, color: black)),
-                              ],
-                            ),
-                          ),
-                          Positioned(
-                            right: 60,
-                            top: 50,
-                            child: SizedBox(
-                              width: 200,
-                              height: 230,
-                              child: Image(image: AssetImage(model.imgAdress)),
-                            ),
-                          ),
-                          Positioned(
-                              top: 300,
-                              left: 10,
-                              child: Text(
-                                model.model,
-                                style: GoogleFonts.aleo(
-                                    fontSize: 15,
-                                    fontWeight: FontWeight.w600,
-                                    color: black),
-                              )),
-                          Positioned(
-                            top: 330,
-                            left: 180,
-                            child: IconButton(
-                                onPressed: () => _toggleLikeFromNewItems(idx),
-                                icon: Icon(Iconsax.heart,
-                                    size: 40,
-                                    color: newItemsOfRev[idx].liked
-                                        ? redColor
-                                        : black)),
-                          ),
-                        ],
-                      ),
-                    ),
-                  );
+                                );
+                              });
+                        });
+                      },
+                      child: ContainerOfFetchingNewItemsInRevenueItems(
+                        imgAdress: model.imgAdress,
+                        name: model.name,
+                        model: model.model,
+                        itemColor: model.itemColor,
+                        price: model.price,
+                        liked: newItemsOfRev[idx].liked,
+                        idx: idx,
+                      ));
                 },
               ),
             );
@@ -306,7 +374,7 @@ class _HomeState extends State<Home> {
             ),
           );
         } else if (featureItemsState is FetchCartItemsStateError) {
-          return alerts.ifErrors(featureItemsState.err);
+          print(featureItemsState.err);
         } else if (featureItemsState is FetchCartItemsStateLoaded) {
           return SizedBox(
             height: siz.height / 2.3,
@@ -319,136 +387,77 @@ class _HomeState extends State<Home> {
                 final itemsBag = model;
 
                 return GestureDetector(
-                  onTap: () {
-                    setState(() {
-                      SizedBox sizedBoxBewtweenTriggers =
-                          const SizedBox(width: 5);
-                      SizedBox sizedBoxBewtweenInfos =
-                          const SizedBox(height: 15);
-                      selectedIndex = idx;
-                      showModalBottomSheet(
-                          isScrollControlled: true,
-                          backgroundColor: white,
-                          enableDrag: true,
-                          shape: const RoundedRectangleBorder(
-                              borderRadius:
-                                  BorderRadius.all(Radius.circular(5))),
-                          context: context,
-                          builder: (context) {
-                            return SizedBox(
-                              height: siz.height / 1.6,
-                              child: SingleChildScrollView(
-                                child: Center(
-                                  child: Column(
-                                    children: [
-                                      nameItemInshowModalBottomSheet(model),
-                                      imageItemInshowModalBottomSheet(
-                                          siz, model),
-                                      ///////////////////////////////////////
-                                      ////////////[Name of item]////////////
-                                      ///////////////////////////////////////
-                                      modelItemInshowModalBottomSheet(model),
+                    onTap: () {
+                      setState(() {
+                        SizedBox sizedBoxBewtweenTriggers =
+                            const SizedBox(width: 5);
+                        SizedBox sizedBoxBewtweenInfos =
+                            const SizedBox(height: 15);
+                        selectedIndex = idx;
+                        showModalBottomSheet(
+                            isScrollControlled: true,
+                            backgroundColor: white,
+                            enableDrag: true,
+                            shape: const RoundedRectangleBorder(
+                                borderRadius:
+                                    BorderRadius.all(Radius.circular(5))),
+                            context: context,
+                            builder: (context) {
+                              return SizedBox(
+                                height: siz.height / 1.6,
+                                child: SingleChildScrollView(
+                                  child: Center(
+                                    child: Column(
+                                      children: [
+                                        nameItemInshowModalBottomSheet(model),
+                                        imageItemInshowModalBottomSheet(
+                                            siz, model),
+                                        ///////////////////////////////////////
+                                        ////////////[Name of item]////////////
+                                        ///////////////////////////////////////
+                                        modelItemInshowModalBottomSheet(model),
 
-                                      rateItemInshowModalBottomSheet(
-                                          siz, model),
-                                      sizedBoxBewtweenInfos,
-                                      /////////////////////////////////////////
-                                      ////////////////////////////////////////
-                                      ///////////////////////////////////////
-                                      colorsAvailableInshowModalBottomSheet(
-                                          model, sizedBoxBewtweenTriggers),
-                                      const SizedBox(
-                                        height: 6,
-                                      ),
-                                      ///////////////////////////////////////
-                                      ////////////[Sizes of item]////////////
-                                      ///////////////////////////////////////
-                                      sizeItemInshowModalBottomSheet(
-                                          isSizedSelected, siz, itemsBag),
-                                      const SizedBox(
-                                        height: 6,
-                                      ),
-                                      /////////////////////////////////////////////////////
-                                      ////////////[Count of item & Add to cart]////////////
-                                      ////////////////////////////////////////////////////
-                                      countOfItemAndAddToCartOfFeaturesItemsInshowModalBottomSheet(
-                                          siz, sizedBoxBewtweenTriggers, idx)
-                                    ],
+                                        rateItemInshowModalBottomSheet(
+                                            siz, model),
+                                        sizedBoxBewtweenInfos,
+                                        /////////////////////////////////////////
+                                        ////////////////////////////////////////
+                                        ///////////////////////////////////////
+                                        colorsAvailableInshowModalBottomSheet(
+                                            model, sizedBoxBewtweenTriggers),
+                                        const SizedBox(
+                                          height: 6,
+                                        ),
+                                        ///////////////////////////////////////
+                                        ////////////[Sizes of item]////////////
+                                        ///////////////////////////////////////
+                                        sizeItemInshowModalBottomSheet(
+                                            isSizedSelected, siz, itemsBag),
+                                        const SizedBox(
+                                          height: 6,
+                                        ),
+                                        /////////////////////////////////////////////////////
+                                        ////////////[Count of item & Add to cart]////////////
+                                        ////////////////////////////////////////////////////
+                                        countOfItemAndAddToCartOfFeaturesItemsInshowModalBottomSheet(
+                                            siz, sizedBoxBewtweenTriggers, idx)
+                                      ],
+                                    ),
                                   ),
                                 ),
-                              ),
-                            );
-                          });
-                    });
-                  },
-                  child: Container(
-                    margin: EdgeInsets.symmetric(
-                        horizontal: siz.height * 0.005,
-                        vertical: siz.height * 0.01),
-                    width: siz.width / 1.5,
-                    child: Stack(
-                      children: [
-                        Container(
-                          width: siz.width / 1.81,
-                          decoration: BoxDecoration(
-                              border: Border.all(
-                                color: model.itemColor,
-                              ),
-                              borderRadius: BorderRadius.circular(20)),
-                        ),
-                        Positioned(
-                          top: 5,
-                          left: 20,
-                          child: Column(
-                            children: [
-                              Text(
-                                model.name,
-                                style: GoogleFonts.aleo(
-                                    color: black,
-                                    fontSize: 21,
-                                    fontWeight: FontWeight.w600),
-                              ),
-                              Text('${model.price} JOD',
-                                  style: GoogleFonts.aleo(
-                                      fontSize: 15, color: black)),
-                            ],
-                          ),
-                        ),
-                        Positioned(
-                          right: 60,
-                          top: 50,
-                          child: SizedBox(
-                            width: 200,
-                            height: 230,
-                            child: Image(image: AssetImage(model.imgAdress)),
-                          ),
-                        ),
-                        Positioned(
-                            top: 300,
-                            left: 10,
-                            child: Text(
-                              model.model,
-                              style: GoogleFonts.aleo(
-                                  fontSize: 15,
-                                  fontWeight: FontWeight.w600,
-                                  color: black),
-                            )),
-                        Positioned(
-                          top: 330,
-                          left: 180,
-                          child: IconButton(
-                              onPressed: () =>
-                                  _toggleLikeFromFeaturesItems(idx),
-                              icon: Icon(Iconsax.heart,
-                                  size: 40,
-                                  color: itemsFeatures[idx].liked
-                                      ? redColor
-                                      : black)),
-                        ),
-                      ],
-                    ),
-                  ),
-                );
+                              );
+                            });
+                      });
+                    },
+                    child: ContainerOfFetchingFeaturesItems(
+                      imgAdress: model.imgAdress,
+                      name: model.name,
+                      model: model.model,
+                      itemColor: model.itemColor,
+                      price: model.price,
+                      liked: itemsFeatures[idx].liked,
+                      idx: idx,
+                    ));
               },
             ),
           );
@@ -463,14 +472,16 @@ class _HomeState extends State<Home> {
     return MultiBlocProvider(
         providers: [
           BlocProvider(
-              create: (context) => FetchCartItemsIntegration(AppMethods())
-                ..add(
-                  FetchCartitemsEventLoading(),
-                )),
+              create: (context) =>
+                  DropItemsIntoHomeScreenIntegration(ShowAllItems())
+                    ..add(
+                      DropItemsIntoHomeScreenEventLoading(),
+                    )),
         ],
-        child: BlocBuilder<FetchCartItemsIntegration, FetchCartItemsState>(
+        child: BlocBuilder<DropItemsIntoHomeScreenIntegration,
+            DropItemsIntoHomeScreenState>(
           builder: (context, addToCartstate) {
-            if (addToCartstate is FetchCartItemsStateLoading) {
+            if (addToCartstate is DropItemsIntoHomeScreenEventLoading) {
               return GridView.builder(
                 shrinkWrap: true,
                 gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
@@ -488,159 +499,106 @@ class _HomeState extends State<Home> {
                 ),
               );
             }
-            if (addToCartstate is FetchCartItemsStateError) {
-              return alerts.ifErrors(addToCartstate.err);
-            } else if (addToCartstate is FetchCartItemsStateLoaded) {
-              List<RevenueIemsModel> revItems = mostTrending;
+            if (addToCartstate is DropItemsIntoHomeScreenStateError) {
+              alerts.ifErrors(addToCartstate.toString());
+              print('''
+===========================================${addToCartstate.err}
+''');
+              // alerts.ifErrors(addToCartstate.err);
+            } else if (addToCartstate is DropItemsIntoHomeScreenStateLoaded) {
+              List<RevenueIemsModel> revItems = addToCartstate.items;
               return SizedBox(
                 height: siz.height / 2.3,
                 child: ListView.builder(
                   itemCount: revItems.length,
                   scrollDirection: Axis.horizontal,
                   itemBuilder: (context, idx) {
-                    final item = mostTrending[idx];
+                    final item = revItems[idx];
                     final RevenueIemsModel itemsbag = item;
 
-                    final model = mostTrending[idx];
+                    final model = revItems[idx];
                     bool isSizedSelected = false;
                     // Show item in  bottom sheet
                     return GestureDetector(
-                      onTap: () {
-                        setState(() {
-                          SizedBox sizedBoxBewtweenTriggers =
-                              const SizedBox(width: 5);
-                          SizedBox sizedBoxBewtweenInfos =
-                              const SizedBox(height: 15);
-                          selectedIndex = idx;
-                          showModalBottomSheet(
-                              isScrollControlled: true,
-                              backgroundColor: white,
-                              enableDrag: true,
-                              shape: const RoundedRectangleBorder(
-                                  borderRadius:
-                                      BorderRadius.all(Radius.circular(5))),
-                              context: context,
-                              builder: (context) {
-                                return SizedBox(
-                                  height: siz.height / 1.6,
-                                  child: SingleChildScrollView(
-                                    child: Center(
-                                      child: Column(
-                                        children: [
-                                          nameItemInshowModalBottomSheet(model),
-                                          imageItemInshowModalBottomSheet(
-                                              siz, model),
-                                          ///////////////////////////////////////
-                                          ////////////[Name of item]////////////
-                                          ///////////////////////////////////////
-                                          modelItemInshowModalBottomSheet(
-                                              model),
+                        onTap: () {
+                          setState(() {
+                            SizedBox sizedBoxBewtweenTriggers =
+                                const SizedBox(width: 5);
+                            SizedBox sizedBoxBewtweenInfos =
+                                const SizedBox(height: 15);
+                            selectedIndex = idx;
+                            showModalBottomSheet(
+                                isScrollControlled: true,
+                                backgroundColor: white,
+                                enableDrag: true,
+                                shape: const RoundedRectangleBorder(
+                                    borderRadius:
+                                        BorderRadius.all(Radius.circular(5))),
+                                context: context,
+                                builder: (context) {
+                                  return SizedBox(
+                                    height: siz.height / 1.6,
+                                    child: SingleChildScrollView(
+                                      child: Center(
+                                        child: Column(
+                                          children: [
+                                            nameItemInshowModalBottomSheet(
+                                                model),
+                                            imageItemInshowModalBottomSheet(
+                                                siz, model),
+                                            ///////////////////////////////////////
+                                            ////////////[Name of item]////////////
+                                            ///////////////////////////////////////
+                                            modelItemInshowModalBottomSheet(
+                                                model),
 
-                                          rateItemInshowModalBottomSheet(
-                                              siz, model),
-                                          sizedBoxBewtweenInfos,
-                                          /////////////////////////////////////////
-                                          ////////////////////////////////////////
-                                          ///////////////////////////////////////
-                                          colorsAvailableInshowModalBottomSheet(
-                                              model, sizedBoxBewtweenTriggers),
-                                          const SizedBox(
-                                            height: 6,
-                                          ),
-                                          ///////////////////////////////////////
-                                          ////////////[Sizes of item]////////////
-                                          ///////////////////////////////////////
-                                          sizeItemInshowModalBottomSheet(
-                                              isSizedSelected, siz, itemsbag),
-                                          const SizedBox(
-                                            height: 6,
-                                          ),
-                                          /////////////////////////////////////////////////////
-                                          ////////////[Count of item & Add to cart]////////////
-                                          ////////////////////////////////////////////////////
-                                          countOfItemAndAddToCartOfMostTrindingItemsInshowModalBottomSheet(
-                                              siz,
-                                              sizedBoxBewtweenTriggers,
-                                              idx)
-                                        ],
+                                            rateItemInshowModalBottomSheet(
+                                                siz, model),
+                                            sizedBoxBewtweenInfos,
+                                            /////////////////////////////////////////
+                                            ////////////////////////////////////////
+                                            ///////////////////////////////////////
+                                            colorsAvailableInshowModalBottomSheet(
+                                                model,
+                                                sizedBoxBewtweenTriggers),
+                                            const SizedBox(
+                                              height: 6,
+                                            ),
+                                            ///////////////////////////////////////
+                                            ////////////[Sizes of item]////////////
+                                            ///////////////////////////////////////
+                                            sizeItemInshowModalBottomSheet(
+                                                isSizedSelected, siz, itemsbag),
+                                            const SizedBox(
+                                              height: 6,
+                                            ),
+                                            /////////////////////////////////////////////////////
+                                            ////////////[Count of item & Add to cart]////////////
+                                            ////////////////////////////////////////////////////
+                                            countOfItemAndAddToCartOfMostTrindingItemsInshowModalBottomSheet(
+                                                siz,
+                                                sizedBoxBewtweenTriggers,
+                                                idx)
+                                          ],
+                                        ),
                                       ),
                                     ),
-                                  ),
-                                );
-                              });
-                        });
-                      },
-                      ///////////////////////////////////////
-                      ////////////[items]////////////////////
-                      ///////////////////////////////////////
-                      child: Container(
-                        margin: EdgeInsets.symmetric(
-                            horizontal: siz.height * 0.005,
-                            vertical: siz.height * 0.01),
-                        width: siz.width / 1.5,
-                        child: Stack(
-                          children: [
-                            Container(
-                              width: siz.width / 1.81,
-                              decoration: BoxDecoration(
-                                  border: Border.all(
-                                    color: model.itemColor,
-                                  ),
-                                  borderRadius: BorderRadius.circular(20)),
-                            ),
-                            Positioned(
-                              top: 5,
-                              left: 20,
-                              child: Column(
-                                children: [
-                                  Text(
-                                    model.name,
-                                    style: GoogleFonts.aleo(
-                                        color: black,
-                                        fontSize: 21,
-                                        fontWeight: FontWeight.w600),
-                                  ),
-                                  Text('${model.price} JOD',
-                                      style: GoogleFonts.aleo(
-                                          fontSize: 15, color: black)),
-                                ],
-                              ),
-                            ),
-                            Positioned(
-                              right: 60,
-                              top: 50,
-                              child: SizedBox(
-                                width: 200,
-                                height: 230,
-                                child:
-                                    Image(image: AssetImage(model.imgAdress)),
-                              ),
-                            ),
-                            Positioned(
-                                top: 300,
-                                child: Text(
-                                  model.model,
-                                  style: GoogleFonts.aleo(
-                                      fontSize: 13,
-                                      fontWeight: FontWeight.w600,
-                                      color: black),
-                                )),
-                            Positioned(
-                              top: 330,
-                              left: 180,
-                              child: IconButton(
-                                  onPressed: () =>
-                                      _toggleLikeFrommostTrending(idx),
-                                  icon: Icon(Iconsax.heart,
-                                      size: 40,
-                                      color: mostTrending[idx].liked
-                                          ? redColor
-                                          : black)),
-                            ),
-                          ],
-                        ),
-                      ),
-                    );
+                                  );
+                                });
+                          });
+                        },
+                        ///////////////////////////////////////
+                        ////////////[items]////////////////////
+                        ///////////////////////////////////////
+                        child: ContainerOfFetchingMostTrindingItems(
+                          imgAdress: model.imgAdress,
+                          name: model.name,
+                          model: model.model,
+                          itemColor: model.itemColor,
+                          price: model.price,
+                          liked: model.liked,
+                          idx: idx,
+                        ));
                   },
                 ),
               );
@@ -725,6 +683,76 @@ class _HomeState extends State<Home> {
     }
 
     RevenueIemsModel model = mostTrending[idx];
+    bool isInCart = itemsInBag.contains(model);
+    return Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 40),
+        child: Center(
+          child: isInCart
+              ? Container(
+                  margin: const EdgeInsets.only(bottom: 5),
+                  width: siz.width / 4,
+                  height: siz.height / 23,
+                  decoration: BoxDecoration(
+                      color: greenColor,
+                      borderRadius: BorderRadius.circular(10)),
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 10),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          'Added !',
+                          style: GoogleFonts.aleo(
+                              color: white,
+                              fontSize: 15,
+                              fontWeight: FontWeight.w600),
+                        ),
+                        Text(
+                          '✔️',
+                          style: GoogleFonts.aleo(
+                              color: white,
+                              fontSize: 13,
+                              fontWeight: FontWeight.w600),
+                        )
+                      ],
+                    ),
+                  ),
+                )
+              : Container(
+                  decoration: BoxDecoration(
+                      color: blueColor,
+                      borderRadius: BorderRadius.circular(10)),
+                  child: ElevatedButton.icon(
+                    style: const ButtonStyle(
+                        backgroundColor:
+                            WidgetStatePropertyAll(Colors.transparent),
+                        shadowColor:
+                            WidgetStatePropertyAll(Colors.transparent)),
+                    onPressed: () =>
+                        toggleAddToCartFrommostTrendingInShowModalBottomSheet(),
+                    label: Text(
+                      'Add to your cart',
+                      style: GoogleFonts.aleo(
+                          color: white,
+                          fontSize: 13,
+                          fontWeight: FontWeight.w600),
+                    ),
+                    icon: const Icon(
+                      Iconsax.shopping_cart,
+                      color: white,
+                    ),
+                  ),
+                ),
+        ));
+  }
+
+  Padding countOfItemAndAddToCartOfShoesSectionInRevenueInshowModalBottomSheet(
+      Size siz, SizedBox sizedBoxBewtweenTriggers, int idx) {
+    void toggleAddToCartFrommostTrendingInShowModalBottomSheet() async {
+      await cartController.saveItemsToTheCart(shoesSection[idx]);
+    }
+
+    RevenueIemsModel model = shoesSection[idx];
     bool isInCart = itemsInBag.contains(model);
     return Padding(
         padding: const EdgeInsets.symmetric(horizontal: 40),
@@ -931,43 +959,46 @@ class _HomeState extends State<Home> {
   Container colorsAvailableInshowModalBottomSheet(
       RevenueIemsModel model, SizedBox sizedBoxBewtweenTriggers) {
     final size = MediaQuery.of(context).size;
+    print("Colors for item: ${model.colorsAvailable}");
     return Container(
         margin: const EdgeInsets.only(left: 240),
         height: size.height * 0.03,
-        width: size.width / 3.2,
-        child: SizedBox(
-            width: sizedBoxBewtweenTriggers.width,
-            child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: model.colorsAvailable.map(
-                  (color) {
-                    final isSelected = model.selectedColor == color;
-                    return GestureDetector(
-                      onTap: () {
-                        if (isSelected) {
-                          model.selectedColor = color;
-                          print("Color Choosen:${model.selectedColor}");
-                        } else if (!isSelected) {
-                          setState(() {
-                            print(
-                                "Color not Choosen:${model.selectedColor = model.itemColor}");
-                            model.selectedColor = model.itemColor;
-                          });
-                        }
-                      },
-                      child: Container(
-                        width: size.width / 14,
-                        decoration: BoxDecoration(
-                            color: isSelected ? grey : black,
-                            borderRadius: BorderRadius.circular(100),
-                            border: Border.all(width: 1)),
-                        child: CircleAvatar(
-                          backgroundColor: color,
-                        ),
+        width: size.width * 0.3,
+        color: Colors.orange.withOpacity(0.3),
+        child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: model.colorsAvailable.map(
+              (color) {
+                final isSelected = model.selectedColor == color;
+                return Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 4),
+                  child: GestureDetector(
+                    onTap: () {
+                      if (isSelected) {
+                        model.selectedColor = color;
+                        print("Color Choosen:${model.selectedColor}");
+                      } else if (!isSelected) {
+                        setState(() {
+                          print(
+                              "Color not Choosen:${model.selectedColor = model.itemColor}");
+                          model.selectedColor = model.itemColor;
+                        });
+                      }
+                    },
+                    child: Container(
+                      width: size.width / 14,
+                      decoration: BoxDecoration(
+                          color: isSelected ? grey : black,
+                          borderRadius: BorderRadius.circular(100),
+                          border: Border.all(width: 1)),
+                      child: CircleAvatar(
+                        backgroundColor: color,
                       ),
-                    );
-                  },
-                ).toList())));
+                    ),
+                  ),
+                );
+              },
+            ).toList()));
   }
 
   SizedBox rateItemInshowModalBottomSheet(Size siz, RevenueIemsModel model) {
@@ -1029,18 +1060,17 @@ class _HomeState extends State<Home> {
 
   SizedBox imageItemInshowModalBottomSheet(Size siz, RevenueIemsModel model) {
     return SizedBox(
-      ///////////////////////////////////////
-      ////////////[Image of item]////////////
-      ///////////////////////////////////////
-      height: siz.height / 2,
-      width: siz.width / 1.2 + 0.72,
-      child: Image(image: AssetImage(model.imgAdress)),
-    );
+        ///////////////////////////////////////
+        ////////////[Image of item]////////////
+        ///////////////////////////////////////
+        height: siz.height / 2,
+        width: siz.width / 1.2 + 0.72,
+        child: Image.memory(base64Decode(model.imgAdress)));
   }
 }
 
-class UpcomingItems extends StatelessWidget {
-  const UpcomingItems({
+class Shoes extends StatelessWidget {
+  const Shoes({
     super.key,
     required this.siz,
   });
@@ -1052,9 +1082,9 @@ class UpcomingItems extends StatelessWidget {
     return SizedBox(
       width: siz.width / 1.1,
       child: Text(
-        'Upcoming',
+        'Shoes',
         style: GoogleFonts.aleo(
-            color: grey, fontSize: 21, fontWeight: FontWeight.w400),
+            color: black, fontSize: 25, fontWeight: FontWeight.w400),
       ),
     );
   }
@@ -1073,7 +1103,7 @@ class NewItems extends StatelessWidget {
     return SizedBox(
       width: siz.width / 1.1,
       child: Text(
-        'News',
+        'New',
         style: GoogleFonts.aleo(
             color: grey, fontSize: 21, fontWeight: FontWeight.w400),
       ),

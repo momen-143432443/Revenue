@@ -1,4 +1,3 @@
-import 'dart:convert';
 import 'package:css/Backend/AuthenticationControls/AuthenticationRepo.dart';
 import 'package:css/Backend/Blocs/FetchCartItemsBloc/FetchNameAndPictureEvent.dart';
 import 'package:css/Backend/Blocs/FetchCartItemsBloc/FetchNameAndPictureIntegration.dart';
@@ -14,11 +13,11 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:iconsax/iconsax.dart';
 import 'package:css/Front/Functions/AppMethods.dart';
 import 'package:animate_do/animate_do.dart';
-import 'dart:math' as math;
 import 'package:loading_animation_widget/loading_animation_widget.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'dart:math' as math;
 
 final cartController = Get.put(AppMethods());
+final insertItemInfo = Get.put(InsertInfoOfPurchaseProduct());
 
 class Cart extends StatefulWidget {
   const Cart({
@@ -63,26 +62,20 @@ class _CommunityState extends State<Cart> {
         ],
         child: BlocBuilder<FetchCartItemsIntegration, FetchCartItemsState>(
           builder: (context, state) {
-            if (state is FetchCartItemsStateLoading) {
-              return Padding(
-                padding: const EdgeInsets.only(top: 300),
-                child: Center(
-                    child: LoadingAnimationWidget.progressiveDots(
-                        color: lime, size: 55)),
-              );
-            } else if (state is FetchCartItemsStateError) {
-              final alerts = Alerts();
+            final alerts = Alerts();
+            if (state is FetchCartItemsStateError) {
               return alerts.ifErrors(state.err);
             } else if (state is FetchCartItemsStateLoaded) {
               return SizedBox(
                 width: size.width,
                 height: size.height / 1.11,
-                child: state.cart.isEmpty
-                    ? const EmptyState()
-                    : Stack(children: [
-                        itemsInfo(size),
-                        confirmAndPurchaseAndTotalPrice(size)
-                      ]),
+                child:
+                    (state.cart.isEmpty && insertItemInfo.purchaseSuccess.value)
+                        ? const EmptyState()
+                        : Stack(children: [
+                            itemsInfo(size),
+                            confirmAndPurchaseAndTotalPrice(size)
+                          ]),
               );
             }
 
@@ -179,7 +172,7 @@ class _CommunityState extends State<Cart> {
                                     Column(
                                       children: [
                                         colorsAvailableInshowModalBottomSheet(
-                                            size, itemsbag, item),
+                                            size, itemsbag),
                                         const SizedBox(
                                           height: 4,
                                         ),
@@ -351,19 +344,6 @@ class _CommunityState extends State<Cart> {
         ));
   }
 
-  SizedBox imageOfItem(Size size, RevenueIemsModel itemsbag) {
-    return SizedBox(
-        width: size.width * 0.4,
-        child: Container(
-          decoration: BoxDecoration(
-              border: Border.all(color: itemsbag.itemColor),
-              borderRadius: BorderRadius.circular(20)),
-          width: 140,
-          height: 140,
-          child: Image(image: AssetImage(itemsbag.imgAdress)),
-        ));
-  }
-
   Column nameAndModelOfTheItems(
       FetchCartItemsStateLoaded cartState, int bagIndex) {
     return Column(
@@ -384,7 +364,7 @@ class _CommunityState extends State<Cart> {
   }
 
   Container colorsAvailableInshowModalBottomSheet(
-      Size size, RevenueIemsModel itemsbag, RevenueIemsModel item) {
+      Size size, RevenueIemsModel itemsbag) {
     return Container(
         margin: const EdgeInsets.only(right: 34),
         height: size.height * 0.03,
@@ -411,7 +391,7 @@ class _CommunityState extends State<Cart> {
                   child: Container(
                     width: size.width / 14,
                     decoration: BoxDecoration(
-                        color: isSelected ? color : item.itemColor,
+                        color: isSelected ? color : itemsbag.itemColor,
                         borderRadius: BorderRadius.circular(100),
                         border: Border.all(width: 1)),
                     child: CircleAvatar(
@@ -510,8 +490,6 @@ class _CommunityState extends State<Cart> {
   }
 
   MultiBlocProvider confirmAndPurchaseAndTotalPrice(Size size) {
-    int isCompanySelected = -1;
-
     return MultiBlocProvider(
       providers: [
         BlocProvider(
@@ -526,13 +504,20 @@ class _CommunityState extends State<Cart> {
                 child: LoadingAnimationWidget.progressiveDots(
                     color: lime, size: 55));
           } else if (cartState is FetchCartItemsStateLoaded) {
-            final insertItemInfo = Get.put(InsertInfoOfPurchaseProduct());
+            double showTotalPriceInButton() {
+              double total = 0;
+              for (var item in cartState.cart) {
+                total += item.price * item.countOfItem;
+              }
+              return total;
+            }
+
             double totalPrice() {
               double total = 0.0;
               for (var item in cartState.cart) {
-                total += item.price + item.countOfItem;
+                total += item.price * item.countOfItem;
               }
-              return total;
+              return total + 16;
             }
 
             Future<void> cartCheckOut() async {
@@ -542,161 +527,226 @@ class _CommunityState extends State<Cart> {
               final user = AuthenticationRepo.instance.auth.currentUser;
               final userId = user?.uid ?? '';
               await insertItemInfo.purchaseProductToDataBase(
-                  userId, itemsJson, totalPrice().toString());
+                  userId, itemsJson, totalPrice());
             }
 
             print('!!!!!!!!!!!!!!!!!!!!!!!!!!!');
             print(insertItemInfo.purchaseSuccess.value);
-            return Positioned(
-                left: 20,
-                top: 800,
-                child: FadeInUp(
-                  delay: const Duration(milliseconds: 100),
-                  child: GestureDetector(
-                    onPanUpdate: (details) {
-                      if (details.delta.dy > 10) {
-                        setState(() {
-                          _isButtonVisible = false;
-                        });
-                      } else {
-                        setState(() {
-                          _isButtonVisible = true;
-                        });
-                      }
-                    },
-                    onTap: () => insertItemInfo.purchaseSuccess.value
-                        ? null
-                        : showModalBottomSheet(
-                            isScrollControlled: true,
-                            backgroundColor: white,
-                            enableDrag: true,
-                            shape: const RoundedRectangleBorder(
-                                borderRadius:
-                                    BorderRadius.all(Radius.circular(14))),
-                            context: context,
-                            builder: (context) {
-                              return SizedBox(
-                                height: size.height / 3,
-                                child: SingleChildScrollView(
-                                  child: Center(
-                                    child: Column(
-                                      children: [
-                                        howDoYouLikeToPayText(),
-                                        const SizedBox(
-                                          height: 4,
-                                        ),
-                                        waysToPay(),
-                                        const SizedBox(
-                                          height: 4,
-                                        ),
-                                        total(size, totalPrice),
-                                        const SizedBox(
-                                          height: 6,
-                                        ),
-                                        deliverCompanies(
-                                            size, isCompanySelected),
-                                        const SizedBox(
-                                          height: 14,
-                                        ),
-                                        confirmPurchase(size, cartCheckOut)
-                                      ],
+            // List<RevenueIemsModel> revItems = cartState.cart;
+            return ListView.builder(
+                itemCount: 1,
+                itemBuilder: (context, bagIndex) {
+                  final item = cartState.cart[bagIndex];
+                  final RevenueIemsModel itemsbag = item;
+                  return SizedBox(
+                    height: 850,
+                    child: Stack(
+                      children: [
+                        Positioned(
+                            left: 20,
+                            top: 750,
+                            child: FadeInUp(
+                              delay: const Duration(milliseconds: 100),
+                              child: GestureDetector(
+                                onPanUpdate: (details) {
+                                  if (details.delta.dy > 10) {
+                                    setState(() {
+                                      _isButtonVisible = false;
+                                    });
+                                  } else {
+                                    setState(() {
+                                      _isButtonVisible = true;
+                                    });
+                                  }
+                                },
+                                onTap: () =>
+                                    insertItemInfo.purchaseSuccess.value
+                                        ? null
+                                        : showModalBottomSheet(
+                                            isScrollControlled: true,
+                                            backgroundColor: white,
+                                            enableDrag: true,
+                                            shape: const RoundedRectangleBorder(
+                                                borderRadius: BorderRadius.all(
+                                                    Radius.circular(14))),
+                                            context: context,
+                                            builder: (context) {
+                                              return SizedBox(
+                                                height: size.height / 3,
+                                                child: SingleChildScrollView(
+                                                  child: Center(
+                                                    child: Column(
+                                                      children: [
+                                                        howDoYouLikeToPayText(),
+                                                        const SizedBox(
+                                                          height: 4,
+                                                        ),
+                                                        waysToPay(),
+                                                        const SizedBox(
+                                                          height: 4,
+                                                        ),
+                                                        total(size,
+                                                            showTotalPriceInButton),
+                                                        const SizedBox(
+                                                          height: 6,
+                                                        ),
+                                                        deliverCompanies(
+                                                            size, item),
+                                                        const SizedBox(
+                                                          height: 14,
+                                                        ),
+                                                        confirmPurchase(
+                                                            size, cartCheckOut)
+                                                      ],
+                                                    ),
+                                                  ),
+                                                ),
+                                              );
+                                            },
+                                          ),
+                                child: AnimatedOpacity(
+                                  duration: const Duration(milliseconds: 300),
+                                  opacity: _isButtonVisible ? 1.0 : 0.0,
+                                  child: Container(
+                                    height: size.height / 23,
+                                    width: size.width / 1.1,
+                                    decoration: BoxDecoration(
+                                      color: blueColor,
+                                      border: Border.all(),
+                                      borderRadius: BorderRadius.circular(5),
                                     ),
-                                  ),
-                                ),
-                              );
-                            },
-                          ),
-                    child: AnimatedOpacity(
-                      duration: const Duration(milliseconds: 300),
-                      opacity: _isButtonVisible ? 1.0 : 0.0,
-                      child: Container(
-                        height: size.height / 23,
-                        width: size.width / 1.1,
-                        decoration: BoxDecoration(
-                          color: blueColor,
-                          border: Border.all(),
-                          borderRadius: BorderRadius.circular(5),
-                        ),
-                        child: Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 12),
-                          child: Obx(() => insertItemInfo.purchaseSuccess.value
-                              ? GestureDetector(
-                                  onTap: () => setState(() {
-                                        showModalBottomSheet(
-                                          isScrollControlled: true,
-                                          backgroundColor: white,
-                                          enableDrag: true,
-                                          shape: const RoundedRectangleBorder(
-                                              borderRadius: BorderRadius.all(
-                                                  Radius.circular(14))),
-                                          context: context,
-                                          builder: (context) {
-                                            return SizedBox(
-                                              height: size.height / 3,
-                                              child: Center(
-                                                child: Column(
+                                    child: Padding(
+                                      padding: const EdgeInsets.symmetric(
+                                          horizontal: 12),
+                                      child: Obx(() =>
+                                          insertItemInfo.purchaseSuccess.value
+                                              ? GestureDetector(
+                                                  onTap: () => setState(() {
+                                                        showModalBottomSheet(
+                                                          isScrollControlled:
+                                                              true,
+                                                          backgroundColor:
+                                                              white,
+                                                          enableDrag: true,
+                                                          shape: const RoundedRectangleBorder(
+                                                              borderRadius: BorderRadius
+                                                                  .all(Radius
+                                                                      .circular(
+                                                                          14))),
+                                                          context: context,
+                                                          builder: (context) {
+                                                            return SizedBox(
+                                                              height:
+                                                                  size.height /
+                                                                      4,
+                                                              child: Center(
+                                                                child: Column(
+                                                                  children: [
+                                                                    Padding(
+                                                                      padding: const EdgeInsets
+                                                                          .symmetric(
+                                                                          horizontal:
+                                                                              10,
+                                                                          vertical:
+                                                                              3),
+                                                                      child:
+                                                                          Row(
+                                                                        mainAxisAlignment:
+                                                                            MainAxisAlignment.spaceBetween,
+                                                                        children: [
+                                                                          Text(
+                                                                            "Estimated time of delivery : 20/May/2025",
+                                                                            style:
+                                                                                GoogleFonts.aleo(
+                                                                              fontSize: 14,
+                                                                              color: black,
+                                                                              fontWeight: FontWeight.w600,
+                                                                            ),
+                                                                          ),
+                                                                          GestureDetector(
+                                                                            onTap:
+                                                                                () {
+                                                                              // It will take us to customer service
+                                                                            },
+                                                                            child:
+                                                                                const Stack(
+                                                                              children: [
+                                                                                Positioned(
+                                                                                  right: 3.1,
+                                                                                  bottom: 7,
+                                                                                  child: Icon(
+                                                                                    Icons.headset_mic_rounded,
+                                                                                    size: 18,
+                                                                                  ),
+                                                                                ),
+                                                                                Icon(Iconsax.user, size: 24)
+                                                                              ],
+                                                                            ),
+                                                                          )
+                                                                        ],
+                                                                      ),
+                                                                    ),
+                                                                  ],
+                                                                ),
+                                                              ),
+                                                            );
+                                                          },
+                                                        );
+                                                      }),
+                                                  child: Row(
+                                                    mainAxisAlignment:
+                                                        MainAxisAlignment
+                                                            .spaceBetween,
+                                                    children: [
+                                                      Text(
+                                                        'Purchase Successfully',
+                                                        style: GoogleFonts.aleo(
+                                                          fontSize: 20,
+                                                          color: white,
+                                                          fontWeight:
+                                                              FontWeight.w600,
+                                                        ),
+                                                      ),
+                                                      const Icon(
+                                                        Iconsax.more,
+                                                        color: white,
+                                                      )
+                                                    ],
+                                                  ))
+                                              : Row(
+                                                  mainAxisAlignment:
+                                                      MainAxisAlignment
+                                                          .spaceBetween,
                                                   children: [
                                                     Text(
-                                                      "Estimated time of delivery : 20/May/2025",
+                                                      'Confirm & purchase',
                                                       style: GoogleFonts.aleo(
-                                                        fontSize: 14,
-                                                        color: black,
+                                                        fontSize: 20,
+                                                        color: white,
                                                         fontWeight:
                                                             FontWeight.w600,
                                                       ),
-                                                    )
+                                                    ),
+                                                    Text(
+                                                      'Total:${showTotalPriceInButton()}',
+                                                      style: GoogleFonts.aleo(
+                                                        fontSize: 14,
+                                                        color: white,
+                                                        fontWeight:
+                                                            FontWeight.w600,
+                                                      ),
+                                                    ),
                                                   ],
-                                                ),
-                                              ),
-                                            );
-                                          },
-                                        );
-                                      }),
-                                  child: Row(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceBetween,
-                                    children: [
-                                      Text(
-                                        'Purchase Successfully',
-                                        style: GoogleFonts.aleo(
-                                          fontSize: 20,
-                                          color: white,
-                                          fontWeight: FontWeight.w600,
-                                        ),
-                                      ),
-                                      const Icon(
-                                        Iconsax.more,
-                                        color: white,
-                                      )
-                                    ],
-                                  ))
-                              : Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    Text(
-                                      'Confirm & purchase',
-                                      style: GoogleFonts.aleo(
-                                        fontSize: 20,
-                                        color: white,
-                                        fontWeight: FontWeight.w600,
-                                      ),
+                                                )),
                                     ),
-                                    Text(
-                                      'Total:${totalPrice()}',
-                                      style: GoogleFonts.aleo(
-                                        fontSize: 14,
-                                        color: white,
-                                        fontWeight: FontWeight.w600,
-                                      ),
-                                    ),
-                                  ],
-                                )),
-                        ),
-                      ),
+                                  ),
+                                ),
+                              ),
+                            ))
+                      ],
                     ),
-                  ),
-                ));
+                  );
+                });
           }
           return Container();
         },
@@ -716,7 +766,7 @@ class _CommunityState extends State<Cart> {
                 backgroundColor: WidgetStatePropertyAll(blueColor)),
             /////////////////////
             ////////////////////
-            onPressed: () => cartCheckOut(),
+            onPressed: () async => await cartCheckOut(),
             ////////////////////
             child: Text(
               "Purchase & Confirm ",
@@ -727,56 +777,47 @@ class _CommunityState extends State<Cart> {
     );
   }
 
-  FadeInLeft deliverCompanies(Size size, int isCompanySelected) {
+  FadeInLeft deliverCompanies(Size size, RevenueIemsModel itemsBag) {
     return FadeInLeft(
       duration: const Duration(milliseconds: 200),
-      delay: const Duration(seconds: 3),
-      child: SizedBox(
-        width: size.width / 1.04,
-        child: Column(
-          children: [
-            Text(
-              "Deliver company",
-              style: GoogleFonts.aleo(
-                  fontSize: 24, color: black, fontWeight: FontWeight.w500),
-            ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                SizedBox(
+      delay: const Duration(seconds: 1),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            "Deliver company",
+            style: GoogleFonts.aleo(
+                fontSize: 24, color: black, fontWeight: FontWeight.w500),
+          ),
+          const SizedBox(height: 10),
+          SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            child: Row(
+              children: itemsBag.deliverCompanies.map((deliver) {
+                final isSelected = itemsBag.selectedDeliverCompany == deliver;
+                return GestureDetector(
+                  onTap: () {
+                    setState(() {
+                      itemsBag.selectedDeliverCompany = deliver;
+                    });
+                  },
+                  child: Container(
+                    margin: const EdgeInsets.symmetric(horizontal: 8),
                     width: size.width / 4,
-                    child: const Image(
-                        image: AssetImage('assets/images/noon.png'))),
-                SizedBox(
-                    width: size.width / 4,
-                    child: const Image(
-                        image: AssetImage('assets/images/Imile.png'))),
-              ],
-            ),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 134),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    "Imile",
-                    style: GoogleFonts.aleo(
-                        fontSize: 20,
-                        color: black,
-                        fontWeight: FontWeight.w600),
+                    height: 60,
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(100),
+                      border: Border.all(
+                          width: 2,
+                          color: isSelected ? Colors.blue : Colors.grey),
+                    ),
+                    child: Image.asset(deliver, fit: BoxFit.contain),
                   ),
-                  Text(
-                    "NOON",
-                    style: GoogleFonts.aleo(
-                        fontSize: 20,
-                        color: black,
-                        fontWeight: FontWeight.w600),
-                  )
-                ],
-              ),
-            )
-          ],
-        ),
+                );
+              }).toList(),
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -799,7 +840,7 @@ class _CommunityState extends State<Cart> {
                       fontSize: 16, color: black, fontWeight: FontWeight.w500),
                 ),
                 Text(
-                  "${ItemCounts.totalPriceWithQuantityOfItems()}",
+                  "${totalPrice()}",
                   style: GoogleFonts.aleo(
                       fontSize: 13, color: black, fontWeight: FontWeight.w700),
                 )
@@ -827,7 +868,7 @@ class _CommunityState extends State<Cart> {
                         color: black,
                         fontWeight: FontWeight.w500)),
                 Text(
-                  "${totalPrice()} JOD",
+                  "${totalPrice() + 16} JOD",
                   style: GoogleFonts.aleo(
                       fontSize: 13, color: black, fontWeight: FontWeight.w700),
                 )

@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:css/Backend/AuthenticationControls/AuthenticationRepo.dart';
+import 'package:css/Backend/Connectivity_plus/SafeTap.dart';
 import 'package:css/Tools/Alerts.dart';
 import 'package:css/Tools/Loader.dart';
 import 'package:flutter/material.dart';
@@ -12,7 +13,7 @@ class InsertInfoOfPurchaseProduct extends GetxController {
   static InsertInfoOfPurchaseProduct get instance => Get.find();
   final RxBool purchaseSuccess = false.obs;
 
-  final baseUrl = "http://192.168.1.2:3000/";
+  final baseUrl = "http://192.168.1.12:3000/";
   GlobalKey<FormState> insertInfoOfPurchaseProductToDataBaseKey =
       GlobalKey<FormState>();
   Alerts alerts = Alerts();
@@ -35,10 +36,15 @@ class InsertInfoOfPurchaseProduct extends GetxController {
       final response = await http.get(url);
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
-        final hasItems =
-            data['items'] != null && (data['items'] as List).isNotEmpty;
-        purchaseSuccess.value = hasItems;
-        await prefs.setBool('check_purchase_success', hasItems);
+        if (data != null && data is Map<String, dynamic>) {
+          final items = data['items'];
+          final hasItems = items != null && items is List && items.isNotEmpty;
+          purchaseSuccess.value = hasItems;
+          await prefs.setBool('check_purchase_success', hasItems);
+        } else {
+          purchaseSuccess.value = false;
+          await prefs.setBool('check_purchase_success', false);
+        }
       } else {
         purchaseSuccess.value = false;
         await prefs.setBool('check_purchase_success', false);
@@ -51,16 +57,20 @@ class InsertInfoOfPurchaseProduct extends GetxController {
   }
 
   Future<void> purchaseProductToDataBase(String userId,
-      List<Map<String, dynamic>> items, String totalOfOrder) async {
+      List<Map<String, dynamic>> items, double totalOfOrder) async {
     final insertInfoOfPurchase = "${baseUrl}insertInfoOfPurchase";
     try {
+      SafeTap.execute(
+        context: navigator!.context,
+        onTap: () async {},
+      );
       Loader.startLoading();
 
       final url = Uri.parse(insertInfoOfPurchase);
       final response = await http.post(url,
           headers: {'Content-Type': 'application/json'},
           body: json.encode(
-              {"userId": userId, "items": items, "Total": totalOfOrder}));
+              {"userId": userId, "items": items, "totalPrice": totalOfOrder}));
       final data = jsonDecode(response.body);
 
       if (response.statusCode == 200 && data['status'] == true) {

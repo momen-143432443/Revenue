@@ -79,37 +79,6 @@ class ItemCounts {
     return totalPrice;
   }
 
-  static countPlusOfItem(int rev) {
-    int itemCounts = rev;
-    final sum = itemCounts++;
-    return sum;
-  }
-
-  static countMinusOfItem(int rev) {
-    int itemCounts = rev;
-    final sum = itemCounts--;
-    return sum;
-  }
-
-  static double totalPriceOfItems() {
-    double sumPrice = 0.0;
-    for (RevenueIemsModel rev in itemsInBag) {
-      sumPrice = sumPrice + rev.price;
-    }
-    return sumPrice;
-  }
-
-  static int totalCountOfItems() {
-    int sumCount = 0;
-    final cartController = Get.put(AppMethods());
-
-    // ignore: unused_local_variable
-    for (RevenueIemsModel count in cartController.cartItems) {
-      sumCount = cartController.cartItems.length;
-    }
-    return sumCount++;
-  }
-
   static Future<List<String>> getItemsFromTheCart() async {
     final SharedPreferences pref = await SharedPreferences.getInstance();
 

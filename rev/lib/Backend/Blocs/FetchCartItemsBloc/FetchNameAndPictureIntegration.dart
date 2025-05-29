@@ -1,7 +1,9 @@
 import 'package:css/Backend/Blocs/FetchCartItemsBloc/FetchNameAndPictureEvent.dart';
 import 'package:css/Backend/Blocs/FetchCartItemsBloc/FetchNameAndPictureState.dart';
+import 'package:css/Backend/Connectivity_plus/SafeTap.dart';
 import 'package:css/Front/Functions/AppMethods.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:get/get.dart';
 
 class FetchCartItemsIntegration
     extends Bloc<FetchCartItemsEvent, FetchCartItemsState> {
@@ -9,6 +11,12 @@ class FetchCartItemsIntegration
   FetchCartItemsIntegration(this.app) : super(FetchCartItemsStateLoading()) {
     on<FetchCartitemsEventLoading>(
       (event, emit) async {
+        SafeTap.execute(
+          context: navigator!.context,
+          onTap: () async {
+            print('Loading Connection');
+          },
+        );
         emit(FetchCartItemsStateLoading());
         print('Loading Cart Items');
         try {

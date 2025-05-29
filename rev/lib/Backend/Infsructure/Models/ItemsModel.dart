@@ -1,22 +1,26 @@
+import 'dart:convert';
+
 import 'package:css/Front/Functions/AppMethods.dart';
 import 'package:flutter/material.dart';
 
 class RevenueIemsModel {
-  String id;
-  String name;
-  String model;
-  int price;
-  String imgAdress;
-  Color itemColor;
+  final String id;
+  final String name;
+  final String model;
+  final int price;
+  final String imgAdress;
+  final Color itemColor;
+  final String companies;
   bool liked;
-  bool addToCart;
+  final bool addToCart;
   List<Color> colorsAvailable;
   List<Icon> rate;
-  List sizes;
+  final List sizes;
   int countOfItem;
-  List deliverCompanies;
+  List<String> deliverCompanies;
   Color? selectedColor;
   String? selectedSize;
+  String? selectedDeliverCompany;
   String? totalOfOrder;
 
   RevenueIemsModel({
@@ -26,6 +30,7 @@ class RevenueIemsModel {
     required this.addToCart,
     required this.model,
     required this.price,
+    required this.companies,
     required this.imgAdress,
     required this.itemColor,
     required this.liked,
@@ -73,6 +78,7 @@ class RevenueIemsModel {
         colorsAvailable: [],
         rate: [],
         sizes: [],
+        companies: '',
         countOfItem: 0,
         deliverCompanies: []);
   }
@@ -96,12 +102,13 @@ class RevenueIemsModel {
     }
 
     return RevenueIemsModel(
-      id: map['itemId'] ?? '',
+      companies: map['deliverCompant'] ?? '',
+      id: map['itemId'].toString(),
       name: map['itemName'] ?? '',
       model: map['itemModel'] ?? '',
       price: (map['itemPrice'] is int)
           ? map['itemPrice']
-          : int.tryParse(map['itemPrice'].toString()) ?? '',
+          : int.tryParse(map['itemPrice'].toString()) ?? 0,
       imgAdress: map['itemPicture'] ?? '',
       itemColor: () {
         final rawColor = map['itemColor'];
@@ -117,6 +124,68 @@ class RevenueIemsModel {
                   Color(int.parse(hex.toString().replaceFirst('#', '0xff'))))
               .toList() ??
           [],
+      countOfItem: map['itemCount'] is int
+          ? map['itemCount']
+          : int.tryParse(map['itemCount'].toString()) ?? 1,
+      addToCart: map['itemAddToCart'] ?? false,
+      liked: map['itemLikes'] ?? false,
+      rate: parseRate(map['itemRate']),
+      deliverCompanies:
+          map["Deliver Companies"] is List ? map["Deliver Companies"] : [],
+    );
+  }
+
+  factory RevenueIemsModel.fromOracleMap(Map<String, dynamic> map) {
+    // Parse color safely
+    Color parseColor(String hex) {
+      try {
+        return Color(int.parse(hex.replaceFirst('#', '0xff')));
+      } catch (_) {
+        return Colors.grey;
+      }
+    }
+
+    // Parse icons safely (you might want to use real ratings later)
+    List<Icon> parseRate(dynamic rawList) {
+      if (rawList is List) {
+        return rawList.map<Icon>((e) => const Icon(Icons.star)).toList();
+      }
+      return [];
+    }
+
+    List<Color> parsedColors = [];
+    print('from oracle${map['colorsAvailable']}');
+    final colorList = map['colorsAvailable'];
+    if (colorList is List && colorList.isNotEmpty) {
+      try {
+        parsedColors = colorList.map((hex) {
+          final cleanHex = hex.toString().replaceAll('#', '').padLeft(6, '0');
+          return Color(int.parse('0xFF$cleanHex'));
+        }).toList();
+      } catch (e) {
+        print("Color parsing failed: $e");
+      }
+    }
+
+    return RevenueIemsModel(
+      companies: map['deliverCompant'] ?? '',
+      id: map['itemId'].toString(),
+      name: map['itemName'] ?? '',
+      model: map['itemModel'] ?? '',
+      price: (map['itemPrice'] is int)
+          ? map['itemPrice']
+          : int.tryParse(map['itemPrice'].toString()) ?? 0,
+      imgAdress: map['itemImageAddress'] ?? '',
+      itemColor: () {
+        final rawColor = map['itemColor'];
+        if (rawColor is List && rawColor.isNotEmpty && rawColor[0] is String) {
+          return parseColor(rawColor[0]);
+        }
+        return Colors.grey;
+      }(),
+      sizes: map['itemSize'] is List ? map['itemSize'] : [],
+      selectedSize: map["itemSize"] ?? 'N/A',
+      colorsAvailable: parsedColors,
       countOfItem: map['itemCount'] is int
           ? map['itemCount']
           : int.tryParse(map['itemCount'].toString()) ?? 1,

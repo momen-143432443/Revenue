@@ -7,7 +7,7 @@ import 'package:http/http.dart' as http;
 class ProfileController extends GetxController {
   static ProfileController get instance => Get.find();
   Rx<UserModel> user = UserModel.userDataEmpty().obs;
-  final baseUrl = "http://192.168.1.2:3000/";
+  final baseUrl = "http://192.168.1.12:3000/";
   @override
   void onInit() {
     super.onInit(); // Call super if required by the library

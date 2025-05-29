@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:css/Backend/Connectivity_plus/SafeTap.dart';
 import 'package:http/http.dart' as http;
 import 'package:css/Backend/AuthenticationControls/AuthenticationRepo.dart';
 import 'package:css/Tools/Alerts.dart';
@@ -10,7 +11,7 @@ import 'package:get/get.dart';
 
 class SignupConroller extends GetxController {
   static SignupConroller get instance => Get.find();
-  final baseUrl = "http://192.168.1.2:3000/";
+  final baseUrl = "http://192.168.1.12:3000/";
   final email = TextEditingController();
   final password = TextEditingController();
   final firstName = TextEditingController();
@@ -51,6 +52,10 @@ class SignupConroller extends GetxController {
         firstName.text.trim().isNotEmpty &&
         lastName.text.trim().isNotEmpty) {
       try {
+        SafeTap.execute(
+          context: navigator!.context,
+          onTap: () async {},
+        );
         Loader.startLoading();
         final checked = await AuthenticationRepo.instance
             .signUpWithEmail(email.text.trim(), password.text.trim());
