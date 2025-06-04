@@ -1,7 +1,7 @@
 import 'package:css/Backend/AuthenticationControls/AuthenticationRepo.dart';
-import 'package:css/Backend/Blocs/FetchCartItemsBloc/FetchNameAndPictureEvent.dart';
-import 'package:css/Backend/Blocs/FetchCartItemsBloc/FetchNameAndPictureIntegration.dart';
-import 'package:css/Backend/Blocs/FetchCartItemsBloc/FetchNameAndPictureState.dart';
+import 'package:css/Backend/Blocs/FetchUserDatafromBloc/FetchNameAndPictureEvent.dart';
+import 'package:css/Backend/Blocs/FetchUserDatafromBloc/FetchNameAndPictureIntegration.dart';
+import 'package:css/Backend/Blocs/FetchUserDatafromBloc/FetchNameAndPictureState.dart';
 import 'package:css/Backend/Controllers/ForProductControllers/InsertInfoOfPurchaseProduct.dart';
 import 'package:css/Backend/Infsructure/Models/ItemsModel.dart';
 import 'package:css/Tools/Alerts.dart';

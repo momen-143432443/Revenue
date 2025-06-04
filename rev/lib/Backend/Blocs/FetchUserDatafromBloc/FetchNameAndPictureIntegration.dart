@@ -1,5 +1,5 @@
-import 'package:css/Backend/Blocs/FetchCartItemsBloc/FetchNameAndPictureEvent.dart';
-import 'package:css/Backend/Blocs/FetchCartItemsBloc/FetchNameAndPictureState.dart';
+import 'package:css/Backend/Blocs/FetchUserDatafromBloc/FetchNameAndPictureEvent.dart';
+import 'package:css/Backend/Blocs/FetchUserDatafromBloc/FetchNameAndPictureState.dart';
 import 'package:css/Backend/Connectivity_plus/SafeTap.dart';
 import 'package:css/Front/Functions/AppMethods.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';

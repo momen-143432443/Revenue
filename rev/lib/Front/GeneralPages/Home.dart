@@ -1,11 +1,20 @@
 import 'dart:convert';
 
+import 'package:css/Backend/Blocs/FetchCartItemsBloc/DropFeatureItemIntoHomeScreen/DropFeatureItemIntoHomeScreenEvent.dart';
+import 'package:css/Backend/Blocs/FetchCartItemsBloc/DropFeatureItemIntoHomeScreen/DropFeatureItemIntoHomeScreenIntegration.dart';
+import 'package:css/Backend/Blocs/FetchCartItemsBloc/DropFeatureItemIntoHomeScreen/DropFeatureItemIntoHomeScreenState.dart';
 import 'package:css/Backend/Blocs/FetchCartItemsBloc/DropItemsIntoHomeScreen/DropItemsIntoHomeScreenEvent.dart';
 import 'package:css/Backend/Blocs/FetchCartItemsBloc/DropItemsIntoHomeScreen/DropItemsIntoHomeScreenIntegration.dart';
 import 'package:css/Backend/Blocs/FetchCartItemsBloc/DropItemsIntoHomeScreen/DropItemsIntoHomeScreenState.dart';
-import 'package:css/Backend/Blocs/FetchCartItemsBloc/FetchNameAndPictureEvent.dart';
-import 'package:css/Backend/Blocs/FetchCartItemsBloc/FetchNameAndPictureIntegration.dart';
-import 'package:css/Backend/Blocs/FetchCartItemsBloc/FetchNameAndPictureState.dart';
+import 'package:css/Backend/Blocs/FetchCartItemsBloc/DropNewItemsIntoHomeScreen/DropNewItemsIntoHomeScreenEvent.dart';
+import 'package:css/Backend/Blocs/FetchCartItemsBloc/DropNewItemsIntoHomeScreen/DropNewItemsIntoHomeScreenIntegration.dart';
+import 'package:css/Backend/Blocs/FetchCartItemsBloc/DropNewItemsIntoHomeScreen/DropNewItemsIntoHomeScreenState.dart';
+import 'package:css/Backend/Blocs/FetchCartItemsBloc/DropShoeItemsIntoHomeScreen/DropShoeItemsIntoHomeScreenEvent.dart';
+import 'package:css/Backend/Blocs/FetchCartItemsBloc/DropShoeItemsIntoHomeScreen/DropShoeItemsIntoHomeScreenIntegration.dart';
+import 'package:css/Backend/Blocs/FetchCartItemsBloc/DropShoeItemsIntoHomeScreen/DropShoeItemsIntoHomeScreenState.dart';
+import 'package:css/Backend/Blocs/FetchUserDatafromBloc/FetchNameAndPictureEvent.dart';
+import 'package:css/Backend/Blocs/FetchUserDatafromBloc/FetchNameAndPictureIntegration.dart';
+import 'package:css/Backend/Blocs/FetchUserDatafromBloc/FetchNameAndPictureState.dart';
 import 'package:css/Backend/Controllers/ForProductControllers/ShowAllItems.dart';
 import 'package:css/Backend/Controllers/ForUserControllers/ProfileController.dart';
 import 'package:css/Backend/Controllers/ForUserControllers/SignOutController.dart';
@@ -27,7 +36,7 @@ import 'package:flutter/cupertino.dart';
 final controller = Get.put(ProfileController());
 final control = Get.put(SignOutCopntroller());
 final cartController = Get.put(AppMethods());
-final showItems = Get.put(ShowAllItems());
+final showItems = Get.put(ShowAllItemsMostOfTrinding());
 
 class Home extends StatefulWidget {
   const Home({super.key});
@@ -83,7 +92,7 @@ class _HomeState extends State<Home> {
       toolbarHeight: 45,
       elevation: 0,
       title: CupertinoSearchTextField(
-        onTap: () => Get.to(const SearchPage()),
+        onTap: () => Get.to(() => const SearchPage()),
       ),
     );
   }
@@ -92,15 +101,18 @@ class _HomeState extends State<Home> {
     return MultiBlocProvider(
       providers: [
         BlocProvider(
-            create: (context) => FetchCartItemsIntegration(AppMethods())
+            create: (context) => DropShoeItemsIntoHomeScreenIntegration(
+                ShowAllItemsShoesProducts())
               ..add(
-                FetchCartitemsEventLoading(),
+                DropShoeItemsIntoHomeScreenEventLoading(),
               )),
       ],
-      child: BlocBuilder<FetchCartItemsIntegration, FetchCartItemsState>(
+      child: BlocBuilder<DropShoeItemsIntoHomeScreenIntegration,
+          DropShoeItemsIntoHomeScreenState>(
         builder: (context, shoesSectionInRevenueState) {
           final Alerts alerts = Alerts();
-          if (shoesSectionInRevenueState is FetchCartItemsStateLoading) {
+          if (shoesSectionInRevenueState
+              is DropShoeItemsIntoHomeScreenStateLoading) {
             return GridView.builder(
               shrinkWrap: true,
               gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
@@ -117,18 +129,20 @@ class _HomeState extends State<Home> {
                 borderRadius: const BorderRadius.all(Radius.circular(15)),
               ),
             );
-          } else if (shoesSectionInRevenueState is FetchCartItemsStateError) {
+          } else if (shoesSectionInRevenueState
+              is DropShoeItemsIntoHomeScreenStateError) {
             print(shoesSectionInRevenueState.err);
-            // alerts.ifErrors(shoesSectionInRevenueState.err);
-          } else if (shoesSectionInRevenueState is FetchCartItemsStateLoaded) {
+            alerts.ifErrors(shoesSectionInRevenueState.err);
+          } else if (shoesSectionInRevenueState
+              is DropShoeItemsIntoHomeScreenStateLoaded) {
+            List<RevenueIemsModel> revItems = shoesSectionInRevenueState.items;
             return SizedBox(
               height: siz.height / 2.3,
               child: ListView.builder(
-                itemCount: shoesSection.length,
+                itemCount: revItems.length,
                 scrollDirection: Axis.horizontal,
                 itemBuilder: (context, idx) {
-                  RevenueIemsModel model = shoesSection[idx];
-                  final itemsBag = model;
+                  RevenueIemsModel model = revItems[idx];
                   bool isSizedSelected = false;
 
                   return GestureDetector(
@@ -154,25 +168,23 @@ class _HomeState extends State<Home> {
                                     child: Center(
                                       child: Column(
                                         children: [
-                                          nameItemInshowModalBottomSheet(
-                                              itemsBag),
+                                          nameItemInshowModalBottomSheet(model),
                                           imageItemInshowModalBottomSheet(
-                                              siz, itemsBag),
+                                              siz, model),
                                           ///////////////////////////////////////
                                           ////////////[Name of item]////////////
                                           ///////////////////////////////////////
                                           modelItemInshowModalBottomSheet(
-                                              itemsBag),
+                                              model),
 
                                           rateItemInshowModalBottomSheet(
-                                              siz, itemsBag),
+                                              siz, model),
                                           sizedBoxBewtweenInfos,
                                           /////////////////////////////////////////
                                           ////////////////////////////////////////
                                           ///////////////////////////////////////
                                           colorsAvailableInshowModalBottomSheet(
-                                              itemsBag,
-                                              sizedBoxBewtweenTriggers),
+                                              model, sizedBoxBewtweenTriggers),
                                           const SizedBox(
                                             height: 6,
                                           ),
@@ -180,16 +192,16 @@ class _HomeState extends State<Home> {
                                           ////////////[Sizes of item]////////////
                                           ///////////////////////////////////////
                                           sizeItemInshowModalBottomSheet(
-                                              isSizedSelected, siz, itemsBag),
+                                              isSizedSelected, siz, model),
                                           const SizedBox(
                                             height: 6,
                                           ),
                                           /////////////////////////////////////////////////////
                                           ////////////[Count of item & Add to cart]////////////
                                           ////////////////////////////////////////////////////
-                                          countOfItemAndAddToCartOfNewItemsInRevenueInshowModalBottomSheet(
+                                          countOfItemAndAddToCartOfShoesSectionInRevenueInshowModalBottomSheet(
                                               siz,
-                                              sizedBoxBewtweenTriggers,
+                                              shoesSectionInRevenueState,
                                               idx)
                                         ],
                                       ),
@@ -205,7 +217,7 @@ class _HomeState extends State<Home> {
                         model: model.model,
                         itemColor: model.itemColor,
                         price: model.price,
-                        liked: shoesSection[idx].liked,
+                        liked: model.liked,
                         idx: idx,
                       ));
                 },
@@ -222,15 +234,18 @@ class _HomeState extends State<Home> {
     return MultiBlocProvider(
       providers: [
         BlocProvider(
-            create: (context) => FetchCartItemsIntegration(AppMethods())
-              ..add(
-                FetchCartitemsEventLoading(),
-              )),
+            create: (context) =>
+                DropNewItemsIntoHomeScreenIntegration(ShowNewItems())
+                  ..add(
+                    DropNewItemsIntoHomeScreenEventLoading(),
+                  )),
       ],
-      child: BlocBuilder<FetchCartItemsIntegration, FetchCartItemsState>(
+      child: BlocBuilder<DropNewItemsIntoHomeScreenIntegration,
+          DropNewItemsIntoHomeScreenState>(
         builder: (context, newItemsInRevenueState) {
           final Alerts alerts = Alerts();
-          if (newItemsInRevenueState is FetchCartItemsStateLoading) {
+          if (newItemsInRevenueState
+              is DropNewItemsIntoHomeScreenStateLoading) {
             return GridView.builder(
               shrinkWrap: true,
               gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
@@ -247,16 +262,20 @@ class _HomeState extends State<Home> {
                 borderRadius: const BorderRadius.all(Radius.circular(15)),
               ),
             );
-          } else if (newItemsInRevenueState is FetchCartItemsStateError) {
+          } else if (newItemsInRevenueState
+              is DropNewItemsIntoHomeScreenStateError) {
+            alerts.ifErrors(newItemsInRevenueState.err);
             print(newItemsInRevenueState.err);
-          } else if (newItemsInRevenueState is FetchCartItemsStateLoaded) {
+          } else if (newItemsInRevenueState
+              is DropNewItemsIntoHomeScreenStateLoaded) {
+            List<RevenueIemsModel> revItems = newItemsInRevenueState.items;
             return SizedBox(
               height: siz.height / 2.3,
               child: ListView.builder(
-                itemCount: newItemsOfRev.length,
+                itemCount: revItems.length,
                 scrollDirection: Axis.horizontal,
                 itemBuilder: (context, idx) {
-                  RevenueIemsModel model = newItemsOfRev[idx];
+                  RevenueIemsModel model = revItems[idx];
                   final itemsBag = model;
                   bool isSizedSelected = false;
 
@@ -317,9 +336,7 @@ class _HomeState extends State<Home> {
                                           ////////////[Count of item & Add to cart]////////////
                                           ////////////////////////////////////////////////////
                                           countOfItemAndAddToCartOfNewItemsInRevenueInshowModalBottomSheet(
-                                              siz,
-                                              sizedBoxBewtweenTriggers,
-                                              idx)
+                                              siz, newItemsInRevenueState, idx)
                                         ],
                                       ),
                                     ),
@@ -334,7 +351,7 @@ class _HomeState extends State<Home> {
                         model: model.model,
                         itemColor: model.itemColor,
                         price: model.price,
-                        liked: newItemsOfRev[idx].liked,
+                        liked: model.liked,
                         idx: idx,
                       ));
                 },
@@ -351,15 +368,17 @@ class _HomeState extends State<Home> {
     return MultiBlocProvider(
       providers: [
         BlocProvider(
-            create: (context) => FetchCartItemsIntegration(AppMethods())
-              ..add(
-                FetchCartitemsEventLoading(),
-              )),
+            create: (context) =>
+                DropFeatureItemIntoHomeScreenIntegration(ShowFeatureItems())
+                  ..add(
+                    DropFeatureItemIntoHomeScreenEventLoading(),
+                  )),
       ],
-      child: BlocBuilder<FetchCartItemsIntegration, FetchCartItemsState>(
+      child: BlocBuilder<DropFeatureItemIntoHomeScreenIntegration,
+              DropFeatureItemIntoHomeScreenState>(
           builder: (context, featureItemsState) {
         final Alerts alerts = Alerts();
-        if (featureItemsState is FetchCartItemsStateLoading) {
+        if (featureItemsState is DropFeatureItemIntoHomeScreenStateLoading) {
           return GridView.builder(
             shrinkWrap: true,
             gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
@@ -373,18 +392,24 @@ class _HomeState extends State<Home> {
               borderRadius: const BorderRadius.all(Radius.circular(15)),
             ),
           );
-        } else if (featureItemsState is FetchCartItemsStateError) {
+        } else if (featureItemsState
+            is DropFeatureItemIntoHomeScreenStateError) {
+          alerts.ifErrors(featureItemsState.err);
           print(featureItemsState.err);
-        } else if (featureItemsState is FetchCartItemsStateLoaded) {
+        } else if (featureItemsState
+            is DropFeatureItemIntoHomeScreenStateLoaded) {
+          List<RevenueIemsModel> revItems = featureItemsState.items;
           return SizedBox(
             height: siz.height / 2.3,
             child: ListView.builder(
-              itemCount: itemsFeatures.length,
+              itemCount: revItems.length,
               scrollDirection: Axis.horizontal,
               itemBuilder: (context, idx) {
                 bool isSizedSelected = false;
-                RevenueIemsModel model = itemsFeatures[idx];
-                final itemsBag = model;
+                final item = revItems[idx];
+                final RevenueIemsModel itemsbag = item;
+
+                final model = revItems[idx];
 
                 return GestureDetector(
                     onTap: () {
@@ -432,7 +457,7 @@ class _HomeState extends State<Home> {
                                         ////////////[Sizes of item]////////////
                                         ///////////////////////////////////////
                                         sizeItemInshowModalBottomSheet(
-                                            isSizedSelected, siz, itemsBag),
+                                            isSizedSelected, siz, itemsbag),
                                         const SizedBox(
                                           height: 6,
                                         ),
@@ -440,7 +465,7 @@ class _HomeState extends State<Home> {
                                         ////////////[Count of item & Add to cart]////////////
                                         ////////////////////////////////////////////////////
                                         countOfItemAndAddToCartOfFeaturesItemsInshowModalBottomSheet(
-                                            siz, sizedBoxBewtweenTriggers, idx)
+                                            siz, featureItemsState, idx)
                                       ],
                                     ),
                                   ),
@@ -455,7 +480,7 @@ class _HomeState extends State<Home> {
                       model: model.model,
                       itemColor: model.itemColor,
                       price: model.price,
-                      liked: itemsFeatures[idx].liked,
+                      liked: model.liked,
                       idx: idx,
                     ));
               },
@@ -472,11 +497,11 @@ class _HomeState extends State<Home> {
     return MultiBlocProvider(
         providers: [
           BlocProvider(
-              create: (context) =>
-                  DropItemsIntoHomeScreenIntegration(ShowAllItems())
-                    ..add(
-                      DropItemsIntoHomeScreenEventLoading(),
-                    )),
+              create: (context) => DropItemsIntoHomeScreenIntegration(
+                  ShowAllItemsMostOfTrinding())
+                ..add(
+                  DropItemsIntoHomeScreenEventLoading(),
+                )),
         ],
         child: BlocBuilder<DropItemsIntoHomeScreenIntegration,
             DropItemsIntoHomeScreenState>(
@@ -576,9 +601,7 @@ class _HomeState extends State<Home> {
                                             ////////////[Count of item & Add to cart]////////////
                                             ////////////////////////////////////////////////////
                                             countOfItemAndAddToCartOfMostTrindingItemsInshowModalBottomSheet(
-                                                siz,
-                                                sizedBoxBewtweenTriggers,
-                                                idx)
+                                                siz, addToCartstate, idx)
                                           ],
                                         ),
                                       ),
@@ -677,12 +700,12 @@ class _HomeState extends State<Home> {
   }
 
   Padding countOfItemAndAddToCartOfMostTrindingItemsInshowModalBottomSheet(
-      Size siz, SizedBox sizedBoxBewtweenTriggers, int idx) {
+      Size siz, DropItemsIntoHomeScreenStateLoaded addToCartstate, int idx) {
     void toggleAddToCartFrommostTrendingInShowModalBottomSheet() async {
-      await cartController.saveItemsToTheCart(mostTrending[idx]);
+      await cartController.saveItemsToTheCart(addToCartstate.items[idx]);
     }
 
-    RevenueIemsModel model = mostTrending[idx];
+    RevenueIemsModel model = addToCartstate.items[idx];
     bool isInCart = itemsInBag.contains(model);
     return Padding(
         padding: const EdgeInsets.symmetric(horizontal: 40),
@@ -747,12 +770,15 @@ class _HomeState extends State<Home> {
   }
 
   Padding countOfItemAndAddToCartOfShoesSectionInRevenueInshowModalBottomSheet(
-      Size siz, SizedBox sizedBoxBewtweenTriggers, int idx) {
+      Size siz,
+      DropShoeItemsIntoHomeScreenStateLoaded shoesSectionInRevenueState,
+      int idx) {
     void toggleAddToCartFrommostTrendingInShowModalBottomSheet() async {
-      await cartController.saveItemsToTheCart(shoesSection[idx]);
+      await cartController
+          .saveItemsToTheCart(shoesSectionInRevenueState.items[idx]);
     }
 
-    RevenueIemsModel model = shoesSection[idx];
+    RevenueIemsModel model = shoesSectionInRevenueState.items[idx];
     bool isInCart = itemsInBag.contains(model);
     return Padding(
         padding: const EdgeInsets.symmetric(horizontal: 40),
@@ -817,12 +843,15 @@ class _HomeState extends State<Home> {
   }
 
   Padding countOfItemAndAddToCartOfNewItemsInRevenueInshowModalBottomSheet(
-      Size siz, SizedBox sizedBoxBewtweenTriggers, int idx) {
+      Size siz,
+      DropNewItemsIntoHomeScreenStateLoaded newItemsInRevenueState,
+      int idx) {
     void toggleAddToCartFrommostTrendingInShowModalBottomSheet() async {
-      await cartController.saveItemsToTheCart(newItemsOfRev[idx]);
+      await cartController
+          .saveItemsToTheCart(newItemsInRevenueState.items[idx]);
     }
 
-    RevenueIemsModel model = newItemsOfRev[idx];
+    RevenueIemsModel model = newItemsInRevenueState.items[idx];
     bool isInCart = itemsInBag.contains(model);
     return Padding(
         padding: const EdgeInsets.symmetric(horizontal: 40),
@@ -886,13 +915,13 @@ class _HomeState extends State<Home> {
         ));
   }
 
-  Padding countOfItemAndAddToCartOfFeaturesItemsInshowModalBottomSheet(
-      Size siz, SizedBox sizedBoxBewtweenTriggers, int idx) {
+  Padding countOfItemAndAddToCartOfFeaturesItemsInshowModalBottomSheet(Size siz,
+      DropFeatureItemIntoHomeScreenStateLoaded featureItemsState, int idx) {
     void toggleAddToCartFrommostTrendingInShowModalBottomSheet() async {
-      await cartController.saveItemsToTheCart(itemsFeatures[idx]);
+      await cartController.saveItemsToTheCart(featureItemsState.items[idx]);
     }
 
-    RevenueIemsModel model = itemsFeatures[idx];
+    RevenueIemsModel model = featureItemsState.items[idx];
     bool isInCart = itemsInBag.contains(model);
     return Padding(
         padding: const EdgeInsets.symmetric(horizontal: 40),
@@ -959,12 +988,12 @@ class _HomeState extends State<Home> {
   Container colorsAvailableInshowModalBottomSheet(
       RevenueIemsModel model, SizedBox sizedBoxBewtweenTriggers) {
     final size = MediaQuery.of(context).size;
-    print("Colors for item: ${model.colorsAvailable}");
+    // print("Colors for item: ${model.colorsAvailable}");
     return Container(
         margin: const EdgeInsets.only(left: 240),
         height: size.height * 0.03,
         width: size.width * 0.3,
-        color: Colors.orange.withOpacity(0.3),
+        // color: Colors.orange.withOpacity(0.3),
         child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: model.colorsAvailable.map(

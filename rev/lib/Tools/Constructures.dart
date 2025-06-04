@@ -1,7 +1,6 @@
 import 'dart:convert';
-import 'dart:typed_data';
 
-import 'package:css/Backend/Blocs/FetchCartItemsBloc/FetchNameAndPictureEvent.dart';
+import 'package:css/Backend/Blocs/FetchUserDatafromBloc/FetchNameAndPictureEvent.dart';
 import 'package:css/Backend/Controllers/ForProductControllers/ShowAllItems.dart';
 import 'package:css/Backend/Infsructure/Models/ItemsModel.dart';
 import 'package:css/Backend/RevenueItems/RevData.dart';
@@ -58,23 +57,23 @@ class ItemImageMemory extends StatelessWidget {
       required this.imgAdress});
   @override
   Widget build(BuildContext con) {
-    print("Rendering image, base64: ${imgAdress.substring(0, 30)}...");
+    // print("Rendering image, base64: ${imgAdress.substring(0, 30)}...");
 
     if (imgAdress.isEmpty || imgAdress.length < 100) {
       return const Icon(Icons.image_not_supported);
     }
 
     try {
-      Uint8List imageBytes = base64Decode(
-        imgAdress.contains(',') ? imgAdress.split(',').last : imgAdress,
-      );
       return Positioned(
         top: top,
         right: right,
         child: SizedBox(
             width: width,
             height: height,
-            child: Image.memory(base64Decode(imgAdress))),
+            child: Image.memory(
+              base64Decode(imgAdress),
+              fit: BoxFit.cover,
+            )),
       );
     } catch (e) {
       print("Base64 decode failed: $e");
@@ -107,7 +106,7 @@ class ContainerOfFetchingMostTrindingItems extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final items = Get.put(ShowAllItems());
+    final items = Get.put(ShowAllItemsMostOfTrinding());
 
     // Uint8List imageBytes = base64Decode(imgAdress);
     final siz = MediaQuery.of(context).size;
@@ -198,6 +197,7 @@ class ContainerOfFetchingFeaturesItems extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final items = Get.put(ShowFeatureItems());
     final siz = MediaQuery.of(context).size;
     final effectiveHoriaontal = horizontal ?? siz.height * 0.005;
     final effectVertical = vertical ?? siz.height * 0.01;
@@ -209,7 +209,7 @@ class ContainerOfFetchingFeaturesItems extends StatelessWidget {
             fontSize: 13, fontWeight: FontWeight.w600, color: black);
     return BlocProvider(
       create: (_) =>
-          MostTrindingCubit()..setInitialMosttrindingItems(itemsFeatures),
+          MostTrindingCubit()..setInitialMosttrindingItems(items.featuresItems),
       child: BlocBuilder<MostTrindingCubit, List<RevenueIemsModel>>(
         builder: (context, state) => Container(
           margin: EdgeInsets.symmetric(
@@ -235,7 +235,7 @@ class ContainerOfFetchingFeaturesItems extends StatelessWidget {
                   ],
                 ),
               ),
-              ItemImageList(imgAdress: imgAdress),
+              ItemImageMemory(imgAdress: imgAdress),
               Positioned(
                   top: 300,
                   child: Text(
@@ -284,6 +284,7 @@ class ContainerOfFetchingNewItemsInRevenueItems extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final items = Get.put(ShowNewItems());
     final siz = MediaQuery.of(context).size;
     final effectiveHoriaontal = horizontal ?? siz.height * 0.005;
     final effectVertical = vertical ?? siz.height * 0.01;
@@ -295,7 +296,7 @@ class ContainerOfFetchingNewItemsInRevenueItems extends StatelessWidget {
             fontSize: 13, fontWeight: FontWeight.w600, color: black);
     return BlocProvider(
       create: (_) =>
-          MostTrindingCubit()..setInitialMosttrindingItems(newItemsOfRev),
+          MostTrindingCubit()..setInitialMosttrindingItems(items.newItems),
       child: BlocBuilder<MostTrindingCubit, List<RevenueIemsModel>>(
         builder: (context, state) => Container(
           margin: EdgeInsets.symmetric(
@@ -321,7 +322,7 @@ class ContainerOfFetchingNewItemsInRevenueItems extends StatelessWidget {
                   ],
                 ),
               ),
-              ItemImageList(imgAdress: imgAdress),
+              ItemImageMemory(imgAdress: imgAdress),
               Positioned(
                   top: 300,
                   child: Text(
@@ -386,6 +387,7 @@ class ContainerOfFetchingShoeSectionInRevenueItems extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final items = Get.put(ShowAllItemsShoesProducts());
     final siz = MediaQuery.of(context).size;
     final effectiveHoriaontal = horizontal ?? siz.height * 0.005;
     final effectVertical = vertical ?? siz.height * 0.01;
@@ -397,7 +399,7 @@ class ContainerOfFetchingShoeSectionInRevenueItems extends StatelessWidget {
             fontSize: 13, fontWeight: FontWeight.w600, color: black);
     return BlocProvider(
       create: (_) =>
-          MostTrindingCubit()..setInitialMosttrindingItems(newItemsOfRev),
+          MostTrindingCubit()..setInitialMosttrindingItems(items.shoesItems),
       child: BlocBuilder<MostTrindingCubit, List<RevenueIemsModel>>(
         builder: (context, state) => Container(
           margin: EdgeInsets.symmetric(

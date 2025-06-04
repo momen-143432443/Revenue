@@ -1,4 +1,4 @@
-import 'package:css/Backend/Blocs/FetchCartItemsBloc/FetchNameAndPictureEvent.dart';
+import 'package:css/Backend/Blocs/FetchUserDatafromBloc/FetchNameAndPictureEvent.dart';
 import 'package:css/Backend/Controllers/ForProductControllers/SearchBarController.dart';
 import 'package:css/Backend/Controllers/ForUserControllers/ProfileController.dart';
 import 'package:css/Backend/Controllers/ForUserControllers/SignOutController.dart';
@@ -101,7 +101,7 @@ class _ProfileState extends State<Profile> {
         final item = searchControl.filteredItems[index];
         return Container(
           decoration: BoxDecoration(
-            border: Border.all(color: item.itemColor),
+            border: Border.all(color: grey),
             borderRadius: BorderRadius.circular(20),
           ),
           margin: EdgeInsets.symmetric(
@@ -141,17 +141,17 @@ class _ProfileState extends State<Profile> {
                         fontSize: 13,
                         fontWeight: FontWeight.w700)),
               ),
-              Positioned(
-                top: 200,
-                left: 135,
-                child: IconButton(
-                  onPressed: () => context
-                      .read<MostTrindingCubit>()
-                      .toggleLikeFrommostTrending(index),
-                  icon: Icon(Iconsax.heart,
-                      size: 30, color: item.liked ? redColor : black),
-                ),
-              ),
+              // Positioned(
+              //   top: 200,
+              //   left: 135,
+              //   child: IconButton(
+              //     onPressed: () => context
+              //         .read<MostTrindingCubit>()
+              //         .toggleLikeFrommostTrending(index),
+              //     icon: Icon(Iconsax.heart,
+              //         size: 30, color: item.liked ? redColor : black),
+              //   ),
+              // ),
             ],
           ),
         );

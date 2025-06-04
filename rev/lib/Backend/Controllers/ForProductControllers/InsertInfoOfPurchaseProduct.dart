@@ -13,7 +13,7 @@ class InsertInfoOfPurchaseProduct extends GetxController {
   static InsertInfoOfPurchaseProduct get instance => Get.find();
   final RxBool purchaseSuccess = false.obs;
 
-  final baseUrl = "http://192.168.1.12:3000/";
+  final baseUrl = "http://192.168.1.7:3000/";
   GlobalKey<FormState> insertInfoOfPurchaseProductToDataBaseKey =
       GlobalKey<FormState>();
   Alerts alerts = Alerts();

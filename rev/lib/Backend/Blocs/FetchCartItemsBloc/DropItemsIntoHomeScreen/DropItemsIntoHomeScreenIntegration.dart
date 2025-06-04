@@ -7,7 +7,7 @@ import 'package:get/get.dart';
 
 class DropItemsIntoHomeScreenIntegration
     extends Bloc<DropItemsIntoHomeScreenEvent, DropItemsIntoHomeScreenState> {
-  final ShowAllItems items;
+  final ShowAllItemsMostOfTrinding items;
   DropItemsIntoHomeScreenIntegration(this.items)
       : super(DropItemsIntoHomeScreenStateLoading()) {
     on<DropItemsIntoHomeScreenEventLoading>(

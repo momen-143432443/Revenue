@@ -28,7 +28,7 @@ class AppMethods extends GetxController {
       alerts.alreadyInTheBag();
     } else {
       try {
-        itemsInBag.add(rev);
+        // itemsInBag.add(rev);
         await cartItemsRepo.addItemsToStore(rev);
         Get.back();
         alerts.addItemInTheBag();
@@ -63,21 +63,21 @@ class AppMethods extends GetxController {
 }
 
 class ItemCounts {
-  ItemCounts._();
-  static int doItemCounts = 0;
-  static totalPriceWithTax() {
-    int tax = 16;
-    final sumOfTotal = tax + ItemCounts.totalPriceWithQuantityOfItems();
-    return sumOfTotal;
-  }
+  // ItemCounts._();
+  // static int doItemCounts = 0;
+  // static totalPriceWithTax() {
+  //   int tax = 16;
+  //   final sumOfTotal = tax + ItemCounts.totalPriceWithQuantityOfItems();
+  //   return sumOfTotal;
+  // }
 
-  static totalPriceWithQuantityOfItems() {
-    double totalPrice = 0.0;
-    for (var items in itemsInBag) {
-      totalPrice += items.price * items.countOfItem;
-    }
-    return totalPrice;
-  }
+  // static totalPriceWithQuantityOfItems() {
+  //   double totalPrice = 0.0;
+  //   for (var items in itemsInBag) {
+  //     totalPrice += items.price * items.countOfItem;
+  //   }
+  //   return totalPrice;
+  // }
 
   static Future<List<String>> getItemsFromTheCart() async {
     final SharedPreferences pref = await SharedPreferences.getInstance();

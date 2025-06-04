@@ -11,7 +11,7 @@ import 'package:get/get.dart';
 
 class SignupConroller extends GetxController {
   static SignupConroller get instance => Get.find();
-  final baseUrl = "http://192.168.1.12:3000/";
+  final baseUrl = "http://192.168.1.7:3000/";
   final email = TextEditingController();
   final password = TextEditingController();
   final firstName = TextEditingController();
