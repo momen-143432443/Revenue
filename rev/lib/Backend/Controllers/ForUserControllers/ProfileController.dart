@@ -3,11 +3,12 @@ import 'package:css/Backend/AuthenticationControls/AuthenticationRepo.dart';
 import 'package:css/Backend/Infsructure/Models/UserModel.dart';
 import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
+import 'package:css/Backend/Controllers/ForUserControllers/BaseUrl.dart';
 
 class ProfileController extends GetxController {
   static ProfileController get instance => Get.find();
   Rx<UserModel> user = UserModel.userDataEmpty().obs;
-  final baseUrl = "http://192.168.1.7:3000/";
+  // final baseUrl = "http://192.168.1.5:3000/";
   @override
   void onInit() {
     super.onInit(); // Call super if required by the library
@@ -18,7 +19,7 @@ class ProfileController extends GetxController {
   }
 
   Future<UserModel> fetchUserData(String email) async {
-    final fetching = "${baseUrl}getUserData/${Uri.encodeComponent(email)}";
+    final fetching = "${baseURL}getUserData/${Uri.encodeComponent(email)}";
     final response = await http.get(Uri.parse(fetching));
     print("Response code: ${response.statusCode}");
     print("Response body: ${response.body}");

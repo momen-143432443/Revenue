@@ -1,13 +1,11 @@
 import 'dart:convert';
-
+import 'package:css/Backend/Controllers/ForUserControllers/BaseUrl.dart';
 import 'package:css/Backend/Infsructure/Models/ItemsModel.dart';
 import 'package:css/Tools/Alerts.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
-
-const baseURL = 'http://192.168.1.7:3000/';
 
 class ShowAllItemsMostOfTrinding extends GetxController {
   static ShowAllItemsMostOfTrinding get instance => Get.find();
@@ -135,7 +133,7 @@ class ShowNewItems extends GetxController {
     final url = Uri.parse(getAllItems);
     try {
       final res = await http.get(url);
-      print('RESPONSE BODY OF SHOE ITEMS: ${res.body}');
+      // print('RESPONSE BODY OF SHOE ITEMS: ${res.body}');
       if (res.statusCode == 200) {
         final List data = jsonDecode(res.body);
         final itemsData =

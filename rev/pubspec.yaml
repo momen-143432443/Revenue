@@ -57,6 +57,7 @@ dependencies:
   connectivity_plus: ^6.1.4
   remixicon: ^1.0.0
   uicons: ^1.0.1
+  liquid_pull_to_refresh: ^3.0.0
 
 
 flutter_native_splash:

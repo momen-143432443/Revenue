@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:css/Backend/Connectivity_plus/SafeTap.dart';
 import 'package:http/http.dart' as http;
+import 'package:css/Backend/Controllers/ForUserControllers/BaseUrl.dart';
 import 'package:css/Backend/AuthenticationControls/AuthenticationRepo.dart';
 import 'package:css/Tools/Alerts.dart';
 import 'package:css/Tools/Loader.dart';
@@ -11,7 +12,6 @@ import 'package:get/get.dart';
 
 class SignupConroller extends GetxController {
   static SignupConroller get instance => Get.find();
-  final baseUrl = "http://192.168.1.7:3000/";
   final email = TextEditingController();
   final password = TextEditingController();
   final firstName = TextEditingController();
@@ -21,7 +21,7 @@ class SignupConroller extends GetxController {
   GlobalKey<FormState> signUpKey = GlobalKey<FormState>();
 
   Future<void> signUpTrigger() async {
-    final resgistration = "${baseUrl}create";
+    const resgistration = "${baseURL}create";
     if (email.text.trim().isEmpty &&
         password.text.trim().isEmpty &&
         firstName.text.trim().isEmpty &&
@@ -57,17 +57,20 @@ class SignupConroller extends GetxController {
           onTap: () async {},
         );
         Loader.startLoading();
-        final checked = await AuthenticationRepo.instance
+
+        UserCredential? checked = await AuthenticationRepo.instance
             .signUpWithEmail(email.text.trim(), password.text.trim());
+
         if (checked != null) {
-          print('Email already used');
-        } else {
+          final firebaseUid = checked.user?.uid;
           final user = {
+            "_id": firebaseUid,
             "email": email.text.trim(),
             "password": password.text.trim(),
             "firstName": firstName.text.trim(),
             "lastName": lastName.text.trim(),
           };
+          print(user);
           await http
               .post(Uri.parse(resgistration),
                   headers: {"Content-type": "application/json"},
@@ -78,15 +81,15 @@ class SignupConroller extends GetxController {
           }).onError(
             (error, stackTrace) {
               Loader.stopLoading();
-              // alerts.ifErrors(error.);
+              alerts.ifErrors(error.toString());
               // alerts.exceptions('Somthing went wrong');
-              // print(error.toString());
+              print(error.toString());
             },
           );
         }
       } on FirebaseAuthException catch (e) {
-        // print(e.message.toString());
-        // alerts.ifErrors(e.message.toString());
+        print(e.message.toString());
+        alerts.ifErrors(e.message.toString());
         Loader.stopLoading();
       }
     }

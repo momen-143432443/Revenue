@@ -1,4 +1,3 @@
-import 'package:css/Backend/Blocs/FetchUserDatafromBloc/FetchNameAndPictureEvent.dart';
 import 'package:css/Backend/Controllers/ForProductControllers/SearchBarController.dart';
 import 'package:css/Backend/Controllers/ForUserControllers/ProfileController.dart';
 import 'package:css/Backend/Controllers/ForUserControllers/SignOutController.dart';
@@ -6,7 +5,6 @@ import 'package:css/Backend/Infsructure/Models/UserModel.dart';
 import 'package:css/Front/GeneralPages/CustomerServicePage.dart';
 import 'package:css/Tools/Colors.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:iconsax/iconsax.dart';

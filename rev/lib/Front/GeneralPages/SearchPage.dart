@@ -9,7 +9,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:iconsax/iconsax.dart';
-import 'package:loading_animation_widget/loading_animation_widget.dart';
+import 'package:liquid_pull_to_refresh/liquid_pull_to_refresh.dart';
 
 final SearchbarController searchControl = Get.put(SearchbarController());
 final userData = Get.put(ProfileController());
@@ -24,149 +24,108 @@ class SearchPage extends StatefulWidget {
 class _SearchPageState extends State<SearchPage> {
   @override
   Widget build(BuildContext context) {
-    return Obx(() {
-      final user = userData.user.value;
-      if (user.email == null || user.email!.isEmpty) {
-        return Padding(
-          padding: const EdgeInsets.only(top: 400),
-          child: Center(
-              child: LoadingAnimationWidget.progressiveDots(
-                  color: lime, size: 55)),
-        );
-      }
-      return Scaffold(
-        backgroundColor: white,
-        appBar: searchForItems(),
-        body: SafeArea(child: SingleChildScrollView(
-          child: Center(child: Obx(() {
-            final query = searchControl.searchController.value.text;
-            final results = searchControl.filteredItems;
-            // if (query.isEmpty) {
-            //   return const EmptyState();
-            // }
-            // if (results.isEmpty) {
-            //   // You can return a “No results found” widget, or just empty Container
-            //   return const Center(child: Text("No results"));
-            // }
-
-            return query.isEmpty
-                ? const EmptyState()
-                : SizedBox(
-                    child: Column(
-                      children: [
-                        Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 10),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              TextButton(
-                                  style: const ButtonStyle(
-                                      backgroundColor:
-                                          WidgetStatePropertyAll(lightGrey)),
-                                  onPressed: () {},
-                                  child: Text(
-                                    'Shoes',
-                                    style: GoogleFonts.aleo(
-                                        color: black,
-                                        fontWeight: FontWeight.w600),
-                                  )),
-                              TextButton(
-                                  style: const ButtonStyle(
-                                      backgroundColor:
-                                          WidgetStatePropertyAll(lightGrey)),
-                                  onPressed: () {},
-                                  child: Text(
-                                    'T-Shirts',
-                                    style: GoogleFonts.aleo(
-                                        color: black,
-                                        fontWeight: FontWeight.w600),
-                                  )),
-                              TextButton(
-                                  style: const ButtonStyle(
-                                      backgroundColor:
-                                          WidgetStatePropertyAll(lightGrey)),
-                                  onPressed: () {},
-                                  child: Text(
-                                    'Pants',
-                                    style: GoogleFonts.aleo(
-                                        color: black,
-                                        fontWeight: FontWeight.w600),
-                                  )),
-                              TextButton(
-                                  style: const ButtonStyle(
-                                      backgroundColor:
-                                          WidgetStatePropertyAll(lightGrey)),
-                                  onPressed: () {},
-                                  child: Text(
-                                    'Mouses',
-                                    style: GoogleFonts.aleo(
-                                        color: black,
-                                        fontWeight: FontWeight.w600),
-                                  )),
-                            ],
-                          ),
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 30),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              TextButton(
-                                  style: const ButtonStyle(
-                                      backgroundColor:
-                                          WidgetStatePropertyAll(lightGrey)),
-                                  onPressed: () {},
-                                  child: Text(
-                                    'Dresses',
-                                    style: GoogleFonts.aleo(
-                                        color: black,
-                                        fontWeight: FontWeight.w600),
-                                  )),
-                              TextButton(
-                                  style: const ButtonStyle(
-                                      backgroundColor:
-                                          WidgetStatePropertyAll(lightGrey)),
-                                  onPressed: () {},
-                                  child: Text(
-                                    'Hats',
-                                    style: GoogleFonts.aleo(
-                                        color: black,
-                                        fontWeight: FontWeight.w600),
-                                  )),
-                              TextButton(
-                                  style: const ButtonStyle(
-                                      backgroundColor:
-                                          WidgetStatePropertyAll(lightGrey)),
-                                  onPressed: () {},
-                                  child: Text(
-                                    'Monitors',
-                                    style: GoogleFonts.aleo(
-                                        color: black,
-                                        fontWeight: FontWeight.w600),
-                                  )),
-                            ],
-                          ),
-                        ),
-                        const Divider(),
-                        ListView.builder(
+    final query = searchControl.searchController.value.text;
+    return Scaffold(
+      backgroundColor: white,
+      appBar: searchForItems(),
+      body: SafeArea(
+        child: LiquidPullToRefresh(
+          springAnimationDurationInMilliseconds: 20,
+          animSpeedFactor: 20,
+          height: 35,
+          showChildOpacityTransition: false,
+          backgroundColor: white,
+          color: greenColor,
+          onRefresh: () async {
+            await searchControl.filtersItems(searchControl.query.value);
+          },
+          child: SingleChildScrollView(
+            physics: const AlwaysScrollableScrollPhysics(),
+            child: Center(
+                child: Column(
+              children: [
+                Column(
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 10),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          TextButton(
+                              style: const ButtonStyle(
+                                  backgroundColor:
+                                      WidgetStatePropertyAll(lightGrey)),
+                              onPressed: () {},
+                              child: Text(
+                                'Shoes',
+                                style: GoogleFonts.aleo(
+                                    fontSize: 12,
+                                    color: black,
+                                    fontWeight: FontWeight.w600),
+                              )),
+                          TextButton(
+                              style: const ButtonStyle(
+                                  backgroundColor:
+                                      WidgetStatePropertyAll(lightGrey)),
+                              onPressed: () {},
+                              child: Text(
+                                'Hats',
+                                style: GoogleFonts.aleo(
+                                    fontSize: 12,
+                                    color: black,
+                                    fontWeight: FontWeight.w600),
+                              )),
+                          TextButton(
+                              style: const ButtonStyle(
+                                  backgroundColor:
+                                      WidgetStatePropertyAll(lightGrey)),
+                              onPressed: () {},
+                              child: Text(
+                                'T-Shirts',
+                                style: GoogleFonts.aleo(
+                                    fontSize: 12,
+                                    color: black,
+                                    fontWeight: FontWeight.w600),
+                              )),
+                          TextButton(
+                              style: const ButtonStyle(
+                                  backgroundColor:
+                                      WidgetStatePropertyAll(lightGrey)),
+                              onPressed: () {},
+                              child: Text(
+                                'Pants',
+                                style: GoogleFonts.aleo(
+                                    fontSize: 12,
+                                    color: black,
+                                    fontWeight: FontWeight.w600),
+                              )),
+                        ],
+                      ),
+                    )
+                  ],
+                ),
+                const Divider(),
+                query.isEmpty
+                    ? const EmptyState()
+                    : Obx(() => ListView.builder(
                           shrinkWrap: true,
-                          itemCount: results.length,
+                          physics: const NeverScrollableScrollPhysics(),
+                          itemCount: searchControl.filteredItems.length,
                           itemBuilder: (context, index) {
-                            final item = results[index];
+                            final item = searchControl.filteredItems[index];
                             return fetchingItems(item);
                           },
-                        ),
-                      ],
-                    ),
-                  );
-          })),
-        )),
-      );
-    });
+                        ))
+              ],
+            )),
+          ),
+        ),
+      ),
+    );
   }
 
   SizedBox fetchingItems(SearchItemModel item) {
-    final siz = MediaQuery.of(context).size;
+    // final siz = MediaQuery.of(context).size;
     return SizedBox(
       child: ListTile(
         leading: item.imgAdress.isNotEmpty
@@ -180,111 +139,7 @@ class _SearchPageState extends State<SearchPage> {
         trailing: Text('${item.price} JOD'),
       ),
     );
-    // return GestureDetector(
-    //   onTap: () => setState(() {
-    //     SizedBox sizedBoxBewtweenTriggers = const SizedBox(width: 5);
-    //     bool isInCart = itemsInBag.contains(item);
-    //     showModalBottomSheet(
-    //       isScrollControlled: true,
-    //       backgroundColor: white,
-    //       enableDrag: true,
-    //       context: context,
-    //       builder: (context) {
-    //         return SizedBox(
-    //           height: siz.height / 1.2,
-    //           child: Column(
-    //             children: [
-    //               nameItemInshowModalBottomSheet(item),
-    //               imageItemInshowModalBottomSheet(siz, item),
-    //               modelItemInshowModalBottomSheet(item),
-    //               rateItemInshowModalBottomSheet(siz, item),
-    //               colorsAvailableInshowModalBottomSheet(
-    //                   sizedBoxBewtweenTriggers, item),
-    //               sizeItemInshowModalBottomSheet(siz, item),
-    //               countOfItemAndAddToCartOfMostTrindingItemsInshowModalBottomSheet(
-    //                   isInCart, siz, index)
-    //             ],
-    //           ),
-    //         );
-    //       },
-    //     );
-    //   }),
-    //   child: ListTile(
-    //     leading: Image(image: AssetImage(item.imgAdress)),
-    //     title: Text(item.name),
-    //     subtitle: Text(item.model),
-    //     trailing: Text('${item.price} JOD'),
-    //   ),
-    // );
   }
-
-  // Padding countOfItemAndAddToCartOfMostTrindingItemsInshowModalBottomSheet(
-  //     bool isInCart, Size siz, int idx) {
-  //   void toggleAddToCartFrommostTrendingInShowModalBottomSheet() async {
-  //     await cartController.saveItemsToTheCart(searchControl.filteredItems[idx]);
-  //   }
-
-  //   return Padding(
-  //       padding: const EdgeInsets.symmetric(horizontal: 40),
-  //       child: Center(
-  //         child: isInCart
-  //             ? Container(
-  //                 margin: const EdgeInsets.only(bottom: 5),
-  //                 width: siz.width / 4,
-  //                 height: siz.height / 23,
-  //                 decoration: BoxDecoration(
-  //                     color: greenColor,
-  //                     borderRadius: BorderRadius.circular(10)),
-  //                 child: Padding(
-  //                   padding: const EdgeInsets.symmetric(horizontal: 10),
-  //                   child: Row(
-  //                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
-  //                     children: [
-  //                       Text(
-  //                         'Added !',
-  //                         style: GoogleFonts.aleo(
-  //                             color: white,
-  //                             fontSize: 15,
-  //                             fontWeight: FontWeight.w600),
-  //                       ),
-  //                       Text(
-  //                         '✔️',
-  //                         style: GoogleFonts.aleo(
-  //                             color: white,
-  //                             fontSize: 13,
-  //                             fontWeight: FontWeight.w600),
-  //                       )
-  //                     ],
-  //                   ),
-  //                 ),
-  //               )
-  //             : Container(
-  //                 decoration: BoxDecoration(
-  //                     color: blueColor,
-  //                     borderRadius: BorderRadius.circular(10)),
-  //                 child: ElevatedButton.icon(
-  //                   style: const ButtonStyle(
-  //                       backgroundColor:
-  //                           WidgetStatePropertyAll(Colors.transparent),
-  //                       shadowColor:
-  //                           WidgetStatePropertyAll(Colors.transparent)),
-  //                   onPressed: () async =>
-  //                       toggleAddToCartFrommostTrendingInShowModalBottomSheet(),
-  //                   label: Text(
-  //                     'Add to your cart',
-  //                     style: GoogleFonts.aleo(
-  //                         color: white,
-  //                         fontSize: 13,
-  //                         fontWeight: FontWeight.w600),
-  //                   ),
-  //                   icon: const Icon(
-  //                     Iconsax.shopping_cart,
-  //                     color: white,
-  //                   ),
-  //                 ),
-  //               ),
-  //       ));
-  // }
 
   Container sizeItemInshowModalBottomSheet(Size siz, RevenueIemsModel item) {
     return Container(
@@ -402,9 +257,9 @@ class _SearchPageState extends State<SearchPage> {
       child: ListView.builder(
         scrollDirection: Axis.horizontal,
         shrinkWrap: true,
-        itemCount: item.rate?.length,
+        itemCount: item.rate.length,
         itemBuilder: (context, rateIndex) {
-          return Container(child: item.rate?[rateIndex]);
+          return Container(child: item.rate[rateIndex]);
         },
       ),
     );
@@ -472,8 +327,13 @@ class _SearchPageState extends State<SearchPage> {
       toolbarHeight: 45,
       elevation: 0,
       title: CupertinoSearchTextField(
-        controller: searchControl.searchController.value,
-        // onChanged: (value) => searchControl.filtersItems(value),
+        controller: searchControl.searchController,
+        onChanged: (value) {
+          setState(() {
+            print('Item Searched : $value');
+            searchControl.onQueryChanged(value);
+          });
+        },
         cursorColor: black,
       ),
     );
@@ -496,10 +356,20 @@ class EmptyState extends StatelessWidget {
             style: GoogleFonts.aleo(
                 fontSize: 30, color: black, fontWeight: FontWeight.w300),
           ),
-          const Icon(
-            Iconsax.bag_2,
-            size: 40,
-          )
+          const Stack(children: [
+            Positioned(
+              top: 9,
+              left: 9.5,
+              child: Icon(
+                Iconsax.bag_2,
+                size: 13,
+              ),
+            ),
+            Icon(
+              Icons.search,
+              size: 40,
+            ),
+          ])
         ],
       ),
     );

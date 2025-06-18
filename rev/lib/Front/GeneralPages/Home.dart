@@ -1,5 +1,4 @@
 import 'dart:convert';
-
 import 'package:css/Backend/Blocs/FetchCartItemsBloc/DropFeatureItemIntoHomeScreen/DropFeatureItemIntoHomeScreenEvent.dart';
 import 'package:css/Backend/Blocs/FetchCartItemsBloc/DropFeatureItemIntoHomeScreen/DropFeatureItemIntoHomeScreenIntegration.dart';
 import 'package:css/Backend/Blocs/FetchCartItemsBloc/DropFeatureItemIntoHomeScreen/DropFeatureItemIntoHomeScreenState.dart';
@@ -12,9 +11,6 @@ import 'package:css/Backend/Blocs/FetchCartItemsBloc/DropNewItemsIntoHomeScreen/
 import 'package:css/Backend/Blocs/FetchCartItemsBloc/DropShoeItemsIntoHomeScreen/DropShoeItemsIntoHomeScreenEvent.dart';
 import 'package:css/Backend/Blocs/FetchCartItemsBloc/DropShoeItemsIntoHomeScreen/DropShoeItemsIntoHomeScreenIntegration.dart';
 import 'package:css/Backend/Blocs/FetchCartItemsBloc/DropShoeItemsIntoHomeScreen/DropShoeItemsIntoHomeScreenState.dart';
-import 'package:css/Backend/Blocs/FetchUserDatafromBloc/FetchNameAndPictureEvent.dart';
-import 'package:css/Backend/Blocs/FetchUserDatafromBloc/FetchNameAndPictureIntegration.dart';
-import 'package:css/Backend/Blocs/FetchUserDatafromBloc/FetchNameAndPictureState.dart';
 import 'package:css/Backend/Controllers/ForProductControllers/ShowAllItems.dart';
 import 'package:css/Backend/Controllers/ForUserControllers/ProfileController.dart';
 import 'package:css/Backend/Controllers/ForUserControllers/SignOutController.dart';
@@ -32,11 +28,15 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:iconsax/iconsax.dart';
 import 'package:css/Backend/RevenueItems/RevData.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:liquid_pull_to_refresh/liquid_pull_to_refresh.dart';
 
 final controller = Get.put(ProfileController());
 final control = Get.put(SignOutCopntroller());
 final cartController = Get.put(AppMethods());
-final showItems = Get.put(ShowAllItemsMostOfTrinding());
+final showItemsMostOfTrinding = Get.put(ShowAllItemsMostOfTrinding());
+final showItemsShoesProducts = Get.put(ShowAllItemsShoesProducts());
+final showFeatureItems = Get.put(ShowFeatureItems());
+final showNewItems = Get.put(ShowNewItems());
 
 class Home extends StatefulWidget {
   const Home({super.key});
@@ -47,7 +47,8 @@ class Home extends StatefulWidget {
 class _HomeState extends State<Home> {
   int selectedFeature = 0;
   int selectItems = 1;
-
+  String? selectedSize;
+  Color? selectedColor;
   int selectedIndex = -1;
   @override
   Widget build(BuildContext context) {
@@ -57,24 +58,39 @@ class _HomeState extends State<Home> {
       appBar: navigateToSearchPage(),
       backgroundColor: white,
       body: SafeArea(
-          child: SingleChildScrollView(
-        child: SizedBox(
-          child: Center(
-            child: Column(
-              children: [
-                const SizedBox(height: 20),
-                MostTrindingText(siz: siz),
-                mostTrindingItems(siz),
-                sizedBoxBewtweenTriggers,
-                FeaturesText(siz: siz),
-                featuresItems(siz),
-                sizedBoxBewtweenTriggers,
-                NewItems(siz: siz),
-                newItemsInRevenue(siz),
-                Shoes(siz: siz),
-                shoeSectionRevenue(siz),
-                const SizedBox(height: 15),
-              ],
+          child: LiquidPullToRefresh(
+        springAnimationDurationInMilliseconds: 20,
+        animSpeedFactor: 20,
+        height: 35,
+        showChildOpacityTransition: false,
+        backgroundColor: white,
+        color: greenColor,
+        onRefresh: () async {
+          await showItemsMostOfTrinding.fetchAllItem();
+          await showItemsShoesProducts.fetchAllItems();
+          await showFeatureItems.fetchAllItems();
+          await showNewItems.fetchAllItems();
+        },
+        child: SingleChildScrollView(
+          physics: const AlwaysScrollableScrollPhysics(),
+          child: SizedBox(
+            child: Center(
+              child: Column(
+                children: [
+                  const SizedBox(height: 20),
+                  MostTrindingText(siz: siz),
+                  mostTrindingItems(siz),
+                  sizedBoxBewtweenTriggers,
+                  FeaturesText(siz: siz),
+                  featuresItems(siz),
+                  sizedBoxBewtweenTriggers,
+                  NewItems(siz: siz),
+                  newItemsInRevenue(siz),
+                  Shoes(siz: siz),
+                  shoeSectionRevenue(siz),
+                  const SizedBox(height: 15),
+                ],
+              ),
             ),
           ),
         ),
@@ -159,55 +175,76 @@ class _HomeState extends State<Home> {
                               enableDrag: true,
                               shape: const RoundedRectangleBorder(
                                   borderRadius:
-                                      BorderRadius.all(Radius.circular(5))),
+                                      BorderRadius.all(Radius.circular(20))),
                               context: context,
                               builder: (context) {
-                                return SizedBox(
-                                  height: siz.height / 1.6,
-                                  child: SingleChildScrollView(
-                                    child: Center(
-                                      child: Column(
-                                        children: [
-                                          nameItemInshowModalBottomSheet(model),
-                                          imageItemInshowModalBottomSheet(
-                                              siz, model),
-                                          ///////////////////////////////////////
-                                          ////////////[Name of item]////////////
-                                          ///////////////////////////////////////
-                                          modelItemInshowModalBottomSheet(
-                                              model),
+                                return StatefulBuilder(
+                                    builder: (context, modalState) {
+                                  return SizedBox(
+                                    height: siz.height / 1.6,
+                                    child: SingleChildScrollView(
+                                      child: Center(
+                                        child: Column(
+                                          children: [
+                                            imageItemInshowModalBottomSheet(
+                                                siz, model),
+                                            ///////////////////////////////////////
+                                            ////////////[Name of item]////////////
+                                            ///////////////////////////////////////
+                                            nameItemInshowModalBottomSheet(
+                                                siz, model),
+                                            modelItemInshowModalBottomSheet(
+                                                siz, model),
 
-                                          rateItemInshowModalBottomSheet(
-                                              siz, model),
-                                          sizedBoxBewtweenInfos,
-                                          /////////////////////////////////////////
-                                          ////////////////////////////////////////
-                                          ///////////////////////////////////////
-                                          colorsAvailableInshowModalBottomSheet(
-                                              model, sizedBoxBewtweenTriggers),
-                                          const SizedBox(
-                                            height: 6,
-                                          ),
-                                          ///////////////////////////////////////
-                                          ////////////[Sizes of item]////////////
-                                          ///////////////////////////////////////
-                                          sizeItemInshowModalBottomSheet(
-                                              isSizedSelected, siz, model),
-                                          const SizedBox(
-                                            height: 6,
-                                          ),
-                                          /////////////////////////////////////////////////////
-                                          ////////////[Count of item & Add to cart]////////////
-                                          ////////////////////////////////////////////////////
-                                          countOfItemAndAddToCartOfShoesSectionInRevenueInshowModalBottomSheet(
-                                              siz,
-                                              shoesSectionInRevenueState,
-                                              idx)
-                                        ],
+                                            rateItemInshowModalBottomSheet(
+                                                siz, model),
+                                            sizedBoxBewtweenInfos,
+                                            itemDescriptionInModelBottomSheet(
+                                                model),
+                                            /////////////////////////////////////////
+                                            ////////////////////////////////////////
+                                            ///////////////////////////////////////
+                                            sizedBoxBewtweenInfos,
+                                            colorsAvailableInshowModalBottomSheet(
+                                                model, sizedBoxBewtweenTriggers,
+                                                (color) {
+                                              modalState(
+                                                () {
+                                                  selectedColor = color;
+                                                },
+                                              );
+                                            }),
+                                            const SizedBox(
+                                              height: 6,
+                                            ),
+                                            ///////////////////////////////////////
+                                            ////////////[Sizes of item]////////////
+                                            ///////////////////////////////////////
+                                            sizeItemInshowModalBottomSheet(
+                                                isSizedSelected, siz, model,
+                                                (size) {
+                                              modalState(
+                                                () {
+                                                  selectedSize = size;
+                                                },
+                                              );
+                                            }),
+                                            const SizedBox(
+                                              height: 6,
+                                            ),
+                                            /////////////////////////////////////////////////////
+                                            ////////////[Count of item & Add to cart]////////////
+                                            ////////////////////////////////////////////////////
+                                            countOfItemAndAddToCartOfShoesSectionInRevenueInshowModalBottomSheet(
+                                                siz,
+                                                shoesSectionInRevenueState,
+                                                idx)
+                                          ],
+                                        ),
                                       ),
                                     ),
-                                  ),
-                                );
+                                  );
+                                });
                               });
                         });
                       },
@@ -226,6 +263,29 @@ class _HomeState extends State<Home> {
           }
           return Container();
         },
+      ),
+    );
+  }
+
+  Padding itemDescriptionInModelBottomSheet(RevenueIemsModel model) {
+    return Padding(
+      padding: const EdgeInsets.only(left: 5),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            "Item Description",
+            style: GoogleFonts.aleo(
+                color: black, fontSize: 20, fontWeight: FontWeight.w700),
+          ),
+          Text(
+            '${model.description}',
+            style: GoogleFonts.aleo(
+                color: black,
+                // fontSize: 15,
+                fontWeight: FontWeight.w600),
+          ),
+        ],
       ),
     );
   }
@@ -282,6 +342,7 @@ class _HomeState extends State<Home> {
                   return GestureDetector(
                       onTap: () {
                         setState(() {
+                          print('Item Types: ${model.type}');
                           SizedBox sizedBoxBewtweenTriggers =
                               const SizedBox(width: 5);
                           SizedBox sizedBoxBewtweenInfos =
@@ -293,55 +354,87 @@ class _HomeState extends State<Home> {
                               enableDrag: true,
                               shape: const RoundedRectangleBorder(
                                   borderRadius:
-                                      BorderRadius.all(Radius.circular(5))),
+                                      BorderRadius.all(Radius.circular(20))),
                               context: context,
                               builder: (context) {
-                                return SizedBox(
-                                  height: siz.height / 1.6,
-                                  child: SingleChildScrollView(
-                                    child: Center(
-                                      child: Column(
-                                        children: [
-                                          nameItemInshowModalBottomSheet(
-                                              itemsBag),
-                                          imageItemInshowModalBottomSheet(
-                                              siz, itemsBag),
-                                          ///////////////////////////////////////
-                                          ////////////[Name of item]////////////
-                                          ///////////////////////////////////////
-                                          modelItemInshowModalBottomSheet(
-                                              itemsBag),
+                                return StatefulBuilder(
+                                    builder: (context, modalState) {
+                                  return SizedBox(
+                                    height: siz.height / 1.6,
+                                    child: SingleChildScrollView(
+                                      child: Center(
+                                        child: Column(
+                                          children: [
+                                            imageItemInshowModalBottomSheet(
+                                                siz, itemsBag),
+                                            ///////////////////////////////////////
+                                            ////////////[Name of item]////////////
+                                            ///////////////////////////////////////
+                                            nameItemInshowModalBottomSheet(
+                                                siz, itemsBag),
+                                            modelItemInshowModalBottomSheet(
+                                                siz, itemsBag),
 
-                                          rateItemInshowModalBottomSheet(
-                                              siz, itemsBag),
-                                          sizedBoxBewtweenInfos,
-                                          /////////////////////////////////////////
-                                          ////////////////////////////////////////
-                                          ///////////////////////////////////////
-                                          colorsAvailableInshowModalBottomSheet(
-                                              itemsBag,
-                                              sizedBoxBewtweenTriggers),
-                                          const SizedBox(
-                                            height: 6,
-                                          ),
-                                          ///////////////////////////////////////
-                                          ////////////[Sizes of item]////////////
-                                          ///////////////////////////////////////
-                                          sizeItemInshowModalBottomSheet(
-                                              isSizedSelected, siz, itemsBag),
-                                          const SizedBox(
-                                            height: 6,
-                                          ),
-                                          /////////////////////////////////////////////////////
-                                          ////////////[Count of item & Add to cart]////////////
-                                          ////////////////////////////////////////////////////
-                                          countOfItemAndAddToCartOfNewItemsInRevenueInshowModalBottomSheet(
-                                              siz, newItemsInRevenueState, idx)
-                                        ],
+                                            rateItemInshowModalBottomSheet(
+                                                siz, itemsBag),
+                                            sizedBoxBewtweenInfos,
+                                            /////////////////////////////////////////
+                                            ////////////////////////////////////////
+                                            ///////////////////////////////////////
+                                            itemDescriptionInModelBottomSheet(
+                                                model),
+                                            colorsAvailableInshowModalBottomSheet(
+                                                itemsBag,
+                                                sizedBoxBewtweenTriggers,
+                                                (color) {
+                                              modalState(
+                                                () {
+                                                  selectedColor = color;
+                                                },
+                                              );
+                                            }),
+                                            const SizedBox(
+                                              height: 6,
+                                            ),
+                                            ///////////////////////////////////////
+                                            ////////////[Sizes of item]////////////
+                                            ///////////////////////////////////////
+                                            if ((model.type ?? '')
+                                                        .trim()
+                                                        .toLowerCase() ==
+                                                    'bags' ||
+                                                (model.type ?? '')
+                                                        .trim()
+                                                        .toLowerCase() ==
+                                                    'headsets')
+                                              Container()
+                                            else
+                                              sizeItemInshowModalBottomSheet(
+                                                  isSizedSelected,
+                                                  siz,
+                                                  itemsBag, (size) {
+                                                modalState(
+                                                  () {
+                                                    selectedSize = size;
+                                                  },
+                                                );
+                                              }),
+                                            const SizedBox(
+                                              height: 6,
+                                            ),
+                                            /////////////////////////////////////////////////////
+                                            ////////////[Count of item & Add to cart]////////////
+                                            ////////////////////////////////////////////////////
+                                            countOfItemAndAddToCartOfNewItemsInRevenueInshowModalBottomSheet(
+                                                siz,
+                                                newItemsInRevenueState,
+                                                idx)
+                                          ],
+                                        ),
                                       ),
                                     ),
-                                  ),
-                                );
+                                  );
+                                });
                               });
                         });
                       },
@@ -414,6 +507,7 @@ class _HomeState extends State<Home> {
                 return GestureDetector(
                     onTap: () {
                       setState(() {
+                        print('Item type is: "${model.type}"');
                         SizedBox sizedBoxBewtweenTriggers =
                             const SizedBox(width: 5);
                         SizedBox sizedBoxBewtweenInfos =
@@ -425,52 +519,80 @@ class _HomeState extends State<Home> {
                             enableDrag: true,
                             shape: const RoundedRectangleBorder(
                                 borderRadius:
-                                    BorderRadius.all(Radius.circular(5))),
+                                    BorderRadius.all(Radius.circular(20))),
                             context: context,
                             builder: (context) {
-                              return SizedBox(
-                                height: siz.height / 1.6,
-                                child: SingleChildScrollView(
-                                  child: Center(
-                                    child: Column(
-                                      children: [
-                                        nameItemInshowModalBottomSheet(model),
-                                        imageItemInshowModalBottomSheet(
-                                            siz, model),
-                                        ///////////////////////////////////////
-                                        ////////////[Name of item]////////////
-                                        ///////////////////////////////////////
-                                        modelItemInshowModalBottomSheet(model),
+                              return StatefulBuilder(
+                                  builder: (context, modalSetState) {
+                                return SizedBox(
+                                  height: siz.height / 1.6,
+                                  child: SingleChildScrollView(
+                                    child: Center(
+                                      child: Column(
+                                        children: [
+                                          imageItemInshowModalBottomSheet(
+                                              siz, model),
+                                          ///////////////////////////////////////
+                                          ////////////[Name of item]////////////
+                                          ///////////////////////////////////////
+                                          nameItemInshowModalBottomSheet(
+                                              siz, model),
 
-                                        rateItemInshowModalBottomSheet(
-                                            siz, model),
-                                        sizedBoxBewtweenInfos,
-                                        /////////////////////////////////////////
-                                        ////////////////////////////////////////
-                                        ///////////////////////////////////////
-                                        colorsAvailableInshowModalBottomSheet(
-                                            model, sizedBoxBewtweenTriggers),
-                                        const SizedBox(
-                                          height: 6,
-                                        ),
-                                        ///////////////////////////////////////
-                                        ////////////[Sizes of item]////////////
-                                        ///////////////////////////////////////
-                                        sizeItemInshowModalBottomSheet(
-                                            isSizedSelected, siz, itemsbag),
-                                        const SizedBox(
-                                          height: 6,
-                                        ),
-                                        /////////////////////////////////////////////////////
-                                        ////////////[Count of item & Add to cart]////////////
-                                        ////////////////////////////////////////////////////
-                                        countOfItemAndAddToCartOfFeaturesItemsInshowModalBottomSheet(
-                                            siz, featureItemsState, idx)
-                                      ],
+                                          modelItemInshowModalBottomSheet(
+                                              siz, model),
+
+                                          rateItemInshowModalBottomSheet(
+                                              siz, model),
+                                          sizedBoxBewtweenInfos,
+                                          /////////////////////////////////////////
+                                          ////////////////////////////////////////
+                                          ///////////////////////////////////////
+                                          itemDescriptionInModelBottomSheet(
+                                              model),
+                                          colorsAvailableInshowModalBottomSheet(
+                                              model, sizedBoxBewtweenTriggers,
+                                              (color) {
+                                            modalSetState(
+                                              () {
+                                                selectedColor = color;
+                                              },
+                                            );
+                                          }),
+                                          const SizedBox(
+                                            height: 6,
+                                          ),
+                                          ///////////////////////////////////////
+                                          ////////////[Sizes of item]////////////
+                                          ///////////////////////////////////////
+                                          (model.type ?? '')
+                                                      .trim()
+                                                      .toLowerCase() ==
+                                                  'bags'
+                                              ? Container()
+                                              : sizeItemInshowModalBottomSheet(
+                                                  isSizedSelected,
+                                                  siz,
+                                                  itemsbag, (size) {
+                                                  modalSetState(
+                                                    () {
+                                                      selectedSize = size;
+                                                    },
+                                                  );
+                                                }),
+                                          const SizedBox(
+                                            height: 6,
+                                          ),
+                                          /////////////////////////////////////////////////////
+                                          ////////////[Count of item & Add to cart]////////////
+                                          ////////////////////////////////////////////////////
+                                          countOfItemAndAddToCartOfFeaturesItemsInshowModalBottomSheet(
+                                              siz, featureItemsState, idx)
+                                        ],
+                                      ),
                                     ),
                                   ),
-                                ),
-                              );
+                                );
+                              });
                             });
                       });
                     },
@@ -527,7 +649,7 @@ class _HomeState extends State<Home> {
             if (addToCartstate is DropItemsIntoHomeScreenStateError) {
               alerts.ifErrors(addToCartstate.toString());
               print('''
-===========================================${addToCartstate.err}
+==========================addToCartstate${addToCartstate.err}
 ''');
               // alerts.ifErrors(addToCartstate.err);
             } else if (addToCartstate is DropItemsIntoHomeScreenStateLoaded) {
@@ -549,8 +671,6 @@ class _HomeState extends State<Home> {
                           setState(() {
                             SizedBox sizedBoxBewtweenTriggers =
                                 const SizedBox(width: 5);
-                            SizedBox sizedBoxBewtweenInfos =
-                                const SizedBox(height: 15);
                             selectedIndex = idx;
                             showModalBottomSheet(
                                 isScrollControlled: true,
@@ -558,55 +678,72 @@ class _HomeState extends State<Home> {
                                 enableDrag: true,
                                 shape: const RoundedRectangleBorder(
                                     borderRadius:
-                                        BorderRadius.all(Radius.circular(5))),
+                                        BorderRadius.all(Radius.circular(20))),
                                 context: context,
                                 builder: (context) {
-                                  return SizedBox(
-                                    height: siz.height / 1.6,
-                                    child: SingleChildScrollView(
-                                      child: Center(
-                                        child: Column(
-                                          children: [
-                                            nameItemInshowModalBottomSheet(
-                                                model),
-                                            imageItemInshowModalBottomSheet(
-                                                siz, model),
-                                            ///////////////////////////////////////
-                                            ////////////[Name of item]////////////
-                                            ///////////////////////////////////////
-                                            modelItemInshowModalBottomSheet(
-                                                model),
-
-                                            rateItemInshowModalBottomSheet(
-                                                siz, model),
-                                            sizedBoxBewtweenInfos,
-                                            /////////////////////////////////////////
-                                            ////////////////////////////////////////
-                                            ///////////////////////////////////////
-                                            colorsAvailableInshowModalBottomSheet(
-                                                model,
-                                                sizedBoxBewtweenTriggers),
-                                            const SizedBox(
-                                              height: 6,
-                                            ),
-                                            ///////////////////////////////////////
-                                            ////////////[Sizes of item]////////////
-                                            ///////////////////////////////////////
-                                            sizeItemInshowModalBottomSheet(
-                                                isSizedSelected, siz, itemsbag),
-                                            const SizedBox(
-                                              height: 6,
-                                            ),
-                                            /////////////////////////////////////////////////////
-                                            ////////////[Count of item & Add to cart]////////////
-                                            ////////////////////////////////////////////////////
-                                            countOfItemAndAddToCartOfMostTrindingItemsInshowModalBottomSheet(
-                                                siz, addToCartstate, idx)
-                                          ],
+                                  // String? selectedSize;
+                                  return StatefulBuilder(
+                                      builder: (context, modalSetState) {
+                                    return SizedBox(
+                                      height: siz.height / 1.6,
+                                      child: SingleChildScrollView(
+                                        child: Center(
+                                          child: Column(
+                                            children: [
+                                              imageItemInshowModalBottomSheet(
+                                                  siz, model),
+                                              ///////////////////////////////////////
+                                              ////////////[Name of item]////////////
+                                              ///////////////////////////////////////
+                                              nameItemInshowModalBottomSheet(
+                                                  siz, model),
+                                              modelItemInshowModalBottomSheet(
+                                                  siz, model),
+                                              const Divider(),
+                                              //Description
+                                              itemDescriptionInModelBottomSheet(
+                                                  model),
+                                              /////////////////////////////////////////
+                                              ////////////////////////////////////////
+                                              ///////////////////////////////////////
+                                              colorsAvailableInshowModalBottomSheet(
+                                                  model,
+                                                  sizedBoxBewtweenTriggers,
+                                                  (color) {
+                                                modalSetState(
+                                                  () {
+                                                    selectedColor = color;
+                                                  },
+                                                );
+                                              }),
+                                              const SizedBox(
+                                                height: 5,
+                                              ),
+                                              ///////////////////////////////////////
+                                              ////////////[Sizes of item]////////////
+                                              ///////////////////////////////////////
+                                              sizeItemInshowModalBottomSheet(
+                                                  isSizedSelected,
+                                                  siz,
+                                                  itemsbag, (size) {
+                                                modalSetState(() {
+                                                  selectedSize = size;
+                                                });
+                                              }),
+                                              const SizedBox(
+                                                height: 6,
+                                              ),
+                                              /////////////////////////////////////////////////////
+                                              ////////////[Count of item & Add to cart]////////////
+                                              ////////////////////////////////////////////////////
+                                              countOfItemAndAddToCartOfMostTrindingItemsInshowModalBottomSheet(
+                                                  siz, addToCartstate, idx)
+                                            ],
+                                          ),
                                         ),
                                       ),
-                                    ),
-                                  );
+                                    );
+                                  });
                                 });
                           });
                         },
@@ -631,71 +768,40 @@ class _HomeState extends State<Home> {
         ));
   }
 
-  Container sizeItemInshowModalBottomSheet(
-      bool isSizedSelected, Size siz, RevenueIemsModel itemsbag) {
-    return Container(
-        decoration: BoxDecoration(
-            border: Border.all(color: grey, width: 0.5),
-            borderRadius: BorderRadius.circular(10)),
-        margin: const EdgeInsets.only(left: 240),
+  SizedBox sizeItemInshowModalBottomSheet(
+    bool isSizedSelected,
+    Size siz,
+    RevenueIemsModel itemsbag,
+    Function(String) onSizeSelected,
+  ) {
+    return SizedBox(
         height: siz.height * 0.04,
-        width: siz.width / 4,
-        child: ListView.builder(
+        width: siz.width,
+        child: SingleChildScrollView(
           scrollDirection: Axis.horizontal,
-          shrinkWrap: true,
-          itemCount: itemsbag.sizes.length,
-          itemBuilder: (context, sizeIndex) {
-            return SizedBox(
-                child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text("Choose:",
-                    style: GoogleFonts.aleo(
-                        fontSize: 14,
-                        color: black,
-                        fontWeight: FontWeight.w600)),
-                const SizedBox(
-                  width: 20,
-                ),
-                Row(
-                  children: itemsbag.sizes.map<Widget>((size) {
-                    return SizedBox(
-                      height: siz.height / 10,
-                      width: siz.width / 5,
-                      child: SizedBox(
-                        width: siz.width / 13,
-                        child: DropdownButtonHideUnderline(
-                          child: DropdownButton<String>(
-                            value: itemsbag.selectedSize,
-                            hint: Text(
-                              "Size",
-                              style: GoogleFonts.aleo(
-                                  fontSize: 12,
-                                  color: black,
-                                  fontWeight: FontWeight.w600),
-                            ),
-                            isExpanded: true,
-                            items: itemsbag.sizes
-                                .map<DropdownMenuItem<String>>((size) {
-                              return DropdownMenuItem<String>(
-                                value: size,
-                                child: Text(size.toString()),
-                              );
-                            }).toList(),
-                            onChanged: (value) {
-                              setState(() {
-                                itemsbag.selectedSize = size;
-                              });
-                            },
-                          ),
-                        ),
-                      ),
-                    );
-                  }).toList(),
-                ),
-              ],
-            ));
-          },
+          child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: itemsbag.sizes.map(
+                (String size) {
+                  final bool isSelected = size == selectedSize;
+                  return Container(
+                    margin: const EdgeInsets.symmetric(horizontal: 12),
+                    decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(100),
+                        border: Border.all(
+                            width: isSelected ? 1.7 : 1, color: black)),
+                    child: ElevatedButton(
+                        style: ButtonStyle(
+                            backgroundColor: WidgetStatePropertyAll(
+                                isSelected ? greenColor : white)),
+                        onPressed: () => setState(() => onSizeSelected(size)),
+                        child: Text(
+                          size,
+                          style: TextStyle(color: isSelected ? white : black),
+                        )),
+                  );
+                },
+              ).toList()),
         ));
   }
 
@@ -985,49 +1091,39 @@ class _HomeState extends State<Home> {
         ));
   }
 
-  Container colorsAvailableInshowModalBottomSheet(
-      RevenueIemsModel model, SizedBox sizedBoxBewtweenTriggers) {
+  SizedBox colorsAvailableInshowModalBottomSheet(RevenueIemsModel model,
+      SizedBox sizedBoxBewtweenTriggers, Function(Color) onColorSelected) {
     final size = MediaQuery.of(context).size;
     // print("Colors for item: ${model.colorsAvailable}");
-    return Container(
-        margin: const EdgeInsets.only(left: 240),
-        height: size.height * 0.03,
-        width: size.width * 0.3,
-        // color: Colors.orange.withOpacity(0.3),
-        child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: model.colorsAvailable.map(
-              (color) {
-                final isSelected = model.selectedColor == color;
-                return Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 4),
-                  child: GestureDetector(
-                    onTap: () {
-                      if (isSelected) {
-                        model.selectedColor = color;
-                        print("Color Choosen:${model.selectedColor}");
-                      } else if (!isSelected) {
-                        setState(() {
-                          print(
-                              "Color not Choosen:${model.selectedColor = model.itemColor}");
-                          model.selectedColor = model.itemColor;
-                        });
-                      }
-                    },
-                    child: Container(
-                      width: size.width / 14,
-                      decoration: BoxDecoration(
-                          color: isSelected ? grey : black,
-                          borderRadius: BorderRadius.circular(100),
-                          border: Border.all(width: 1)),
-                      child: CircleAvatar(
-                        backgroundColor: color,
-                      ),
-                    ),
-                  ),
-                );
-              },
-            ).toList()));
+    return SizedBox(
+        height: size.height * 0.04,
+        width: size.width,
+        child: SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: model.colorsAvailable.map(
+                (color) {
+                  final bool isSelected = color == selectedColor;
+                  return Container(
+                    margin: const EdgeInsets.symmetric(horizontal: 12),
+                    decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(100),
+                        border: Border.all(
+                            width: isSelected ? 1.7 : 1, color: black)),
+                    child: ElevatedButton(
+                        style: ButtonStyle(
+                            backgroundColor: WidgetStatePropertyAll(color)),
+                        onPressed: () => setState(() {
+                              onColorSelected(color);
+                            }),
+                        child: const Text(
+                          '',
+                        )),
+                  );
+                },
+              ).toList()),
+        ));
   }
 
   SizedBox rateItemInshowModalBottomSheet(Size siz, RevenueIemsModel model) {
@@ -1045,11 +1141,13 @@ class _HomeState extends State<Home> {
     );
   }
 
-  Padding modelItemInshowModalBottomSheet(RevenueIemsModel model) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 20),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+  Container modelItemInshowModalBottomSheet(Size siz, RevenueIemsModel model) {
+    return Container(
+      width: siz.width,
+      margin: const EdgeInsets.only(left: 5),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.spaceAround,
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           SizedBox(
             child: Text(
@@ -1077,12 +1175,14 @@ class _HomeState extends State<Home> {
     );
   }
 
-  Center nameItemInshowModalBottomSheet(RevenueIemsModel model) {
-    return Center(
+  Container nameItemInshowModalBottomSheet(Size siz, RevenueIemsModel model) {
+    return Container(
+      margin: const EdgeInsets.only(left: 5),
+      width: siz.width / 1,
       child: Text(
         model.name,
         style: GoogleFonts.aleo(
-            color: black, fontSize: 31, fontWeight: FontWeight.w600),
+            color: black, fontSize: 28, fontWeight: FontWeight.w600),
       ),
     );
   }
@@ -1092,9 +1192,10 @@ class _HomeState extends State<Home> {
         ///////////////////////////////////////
         ////////////[Image of item]////////////
         ///////////////////////////////////////
-        height: siz.height / 2,
+        height: siz.height / 3,
         width: siz.width / 1.2 + 0.72,
-        child: Image.memory(base64Decode(model.imgAdress)));
+        child:
+            Image.memory(fit: BoxFit.contain, base64Decode(model.imgAdress)));
   }
 }
 

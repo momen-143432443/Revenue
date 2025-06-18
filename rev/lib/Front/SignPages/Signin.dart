@@ -1,6 +1,5 @@
-import 'dart:math';
-
 import 'package:css/Backend/Controllers/ForUserControllers/SignInContoller.dart';
+import 'package:css/Front/SignPages/SendOTPToUser.dart';
 import 'package:css/Front/SignPages/SignUp.dart';
 import 'package:css/Tools/Colors.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -26,50 +25,91 @@ class _SignInState extends State<SignIn> {
     double height = MediaQuery.of(context).size.height;
 
     return Scaffold(
-      backgroundColor: white,
+      backgroundColor: greenColor,
       body: SafeArea(
           child: SingleChildScrollView(
         child: SizedBox(
           child: Column(
             children: [
               sizeBox(50),
-              revenueIcon(width, height),
-              sizeBox(100),
-              email(),
-              const SizedBox(height: 15),
-              password(),
-              sizeBox(10),
-              forgetPassword(),
-              sizeBox(45),
-              saveAndContinue(width),
-              const Divider(),
-              tryToQuickSign(),
-              sizeBox(15),
-              GoogleSign(width: width),
-              const SizedBox(height: 5),
-              FacebookSign(width: width),
-              sizeBox(100),
-              sizeBox(height / 22),
+              Revenue(width, height),
+              // revenueIcon(width, height),
+              sizeBox(50),
+              signInText(),
               Container(
-                margin: const EdgeInsets.only(bottom: 12),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
+                margin: const EdgeInsets.symmetric(horizontal: 10),
+                decoration: BoxDecoration(
+                    color: white, borderRadius: BorderRadius.circular(20)),
+                child: Column(
                   children: [
-                    const Text("Don't have an account? "),
-                    GestureDetector(
-                        onTap: () => Get.to(() => const Signup()),
-                        child: Text(
-                          "Press here to sign up",
-                          style: GoogleFonts.aleo(
-                              color: greenColor, fontWeight: FontWeight.w600),
-                        ))
+                    sizeBox(10),
+                    email(),
+                    sizeBox(15),
+                    // const SizedBox(height: 15),
+                    password(),
+                    sizeBox(10),
+                    forgetPassword(),
+                    sizeBox(45),
+                    saveAndContinue(width),
+                    const Divider(),
+                    tryToQuickSign(),
+                    sizeBox(15),
+                    GoogleSign(width: width),
+                    sizeBox(5),
+                    // const SizedBox(height: 5),
+                    FacebookSign(width: width),
+                    sizeBox(10),
                   ],
                 ),
-              )
+              ),
+              sizeBox(40),
+              ceatingNewAccount()
             ],
           ),
         ),
       )),
+    );
+  }
+
+  Padding signInText() {
+    return Padding(
+      padding: const EdgeInsets.only(top: 45, right: 233),
+      child: Text("Sign In",
+          style: GoogleFonts.aleo(
+              fontSize: 45, color: white, fontWeight: FontWeight.w600)),
+    );
+  }
+
+  SizedBox Revenue(double width, double height) {
+    return SizedBox(
+      width: width / 1.2,
+      height: height / 5,
+      child: Center(
+        child: Text(
+          'R',
+          style: GoogleFonts.italianno(
+              fontSize: 115, color: white, fontWeight: FontWeight.w500),
+        ),
+      ),
+    );
+  }
+
+  Container ceatingNewAccount() {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 12),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          const Text("Don't have an account? "),
+          GestureDetector(
+              onTap: () => Get.to(() => const Signup()),
+              child: Text(
+                "Press here to sign up",
+                style:
+                    GoogleFonts.aleo(color: white, fontWeight: FontWeight.w600),
+              ))
+        ],
+      ),
     );
   }
 
@@ -95,7 +135,10 @@ class _SignInState extends State<SignIn> {
 
   GestureDetector forgetPassword() {
     return GestureDetector(
-        onTap: () => print('push to forget password'),
+        onTap: () {
+          print('push to forget password');
+          Get.to(() => const SendOTPToUser());
+        },
         child: Padding(
           padding: const EdgeInsets.only(left: 235),
           child: Text('Forget password ?', style: GoogleFonts.aleo()),
@@ -127,7 +170,7 @@ class _SignInState extends State<SignIn> {
         cursorColor: Colors.white,
         style: const TextStyle(color: black),
         decoration: InputDecoration(
-          suffixIcon: const Icon(Icons.email_outlined, color: black),
+          suffixIcon: const Icon(Icons.email_outlined, color: white),
           labelText: 'Email',
           labelStyle: const TextStyle(color: black),
           filled: true,
@@ -175,8 +218,12 @@ class _SignInState extends State<SignIn> {
       child: passVisible
           ? const Icon(
               Iconsax.eye_slash,
+              color: white,
             )
-          : const Icon(Iconsax.eye),
+          : const Icon(
+              Iconsax.eye,
+              color: white,
+            ),
     );
   }
 }
@@ -191,21 +238,36 @@ class FacebookSign extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
-        width: width / 1.2,
-        child: ElevatedButton.icon(
-          style: const ButtonStyle(
-              backgroundColor: WidgetStatePropertyAll(blueColor)),
-          onPressed: () {},
-          label: Text(
-            'Facebook',
-            style: GoogleFonts.aleo(color: white, fontSize: 20),
-          ),
-          icon: const Icon(
-            FontAwesomeIcons.facebook,
-            color: white,
-          ),
-        ));
+    final size = MediaQuery.of(context).size;
+
+    return GestureDetector(
+      onTap: () {},
+      child: Container(
+          width: width / 2.4,
+          height: size.height / 26,
+          decoration: BoxDecoration(
+              color: blueColor, borderRadius: BorderRadius.circular(30)),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            children: [
+              const Padding(
+                padding: EdgeInsets.only(left: 10),
+                child: Icon(
+                  FontAwesomeIcons.facebook,
+                  color: white,
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.only(right: 25),
+                child: Text(
+                  "Facebook",
+                  style: GoogleFonts.aleo(
+                      fontSize: 20, color: white, fontWeight: FontWeight.w600),
+                ),
+              )
+            ],
+          )),
+    );
   }
 }
 
@@ -219,21 +281,45 @@ class GoogleSign extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
-        width: width / 1.2,
-        child: ElevatedButton.icon(
-          style: const ButtonStyle(
-              backgroundColor: WidgetStatePropertyAll(redColor)),
-          onPressed: () {},
-          label: Text(
-            'Google',
-            style: GoogleFonts.aleo(color: white, fontSize: 20),
+    final size = MediaQuery.of(context).size;
+    return GestureDetector(
+      onTap: () {},
+      child: Container(
+          decoration: BoxDecoration(
+              color: redColor, borderRadius: BorderRadius.circular(30)),
+          width: width / 3,
+          height: size.height / 26,
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            children: [
+              const Padding(
+                padding: EdgeInsets.only(left: 10),
+                child: Icon(
+                  FontAwesomeIcons.google,
+                  color: white,
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.only(right: 35),
+                child: Text(
+                  "Google",
+                  style: GoogleFonts.aleo(
+                      fontSize: 20, color: white, fontWeight: FontWeight.w600),
+                ),
+              )
+            ],
+          )
+          // IconButton(
+          //   style: const ButtonStyle(
+          //       backgroundColor: WidgetStatePropertyAll(redColor)),
+          //   onPressed: () {},
+          //   icon: const Icon(
+          //     FontAwesomeIcons.google,
+          //     color: white,
+          //   ),
+          // )
           ),
-          icon: const Icon(
-            FontAwesomeIcons.google,
-            color: white,
-          ),
-        ));
+    );
   }
 }
 

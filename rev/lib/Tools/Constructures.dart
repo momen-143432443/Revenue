@@ -1,9 +1,7 @@
 import 'dart:convert';
-
 import 'package:css/Backend/Blocs/FetchUserDatafromBloc/FetchNameAndPictureEvent.dart';
 import 'package:css/Backend/Controllers/ForProductControllers/ShowAllItems.dart';
 import 'package:css/Backend/Infsructure/Models/ItemsModel.dart';
-import 'package:css/Backend/RevenueItems/RevData.dart';
 import 'package:css/Tools/Colors.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -72,7 +70,7 @@ class ItemImageMemory extends StatelessWidget {
             height: height,
             child: Image.memory(
               base64Decode(imgAdress),
-              fit: BoxFit.cover,
+              fit: BoxFit.contain,
             )),
       );
     } catch (e) {
@@ -156,15 +154,22 @@ class ContainerOfFetchingMostTrindingItems extends StatelessWidget {
                     style: textStyleEffect2,
                   )),
               Positioned(
-                top: 330,
-                left: 180,
-                child: IconButton(
-                    onPressed: () => context
-                        .read<MostTrindingCubit>()
-                        .toggleLikeFrommostTrending(idx!),
-                    icon: Icon(Iconsax.heart,
-                        size: 40, color: liked ? redColor : black)),
-              ),
+                  top: 335,
+                  left: 115,
+                  child: TextButton.icon(
+                      style: const ButtonStyle(
+                          backgroundColor: WidgetStatePropertyAll(redColor)),
+                      onPressed: () => context
+                          .read<MostTrindingCubit>()
+                          .toggleLikeFrommostTrending(idx!),
+                      icon: Icon(Iconsax.heart, color: liked ? white : black),
+                      label: Text(
+                        'Wishlist',
+                        style: GoogleFonts.aleo(
+                            color: liked ? white : black,
+                            fontSize: 14,
+                            fontWeight: FontWeight.w600),
+                      ))),
             ],
           ),
         );
@@ -243,15 +248,22 @@ class ContainerOfFetchingFeaturesItems extends StatelessWidget {
                     style: textStyleEffect2,
                   )),
               Positioned(
-                top: 330,
-                left: 180,
-                child: IconButton(
-                    onPressed: () => context
-                        .read<MostTrindingCubit>()
-                        .toggleLikeFrommostTrending(idx!),
-                    icon: Icon(Iconsax.heart,
-                        size: 40, color: liked ? redColor : black)),
-              ),
+                  top: 335,
+                  left: 115,
+                  child: TextButton.icon(
+                      style: const ButtonStyle(
+                          backgroundColor: WidgetStatePropertyAll(redColor)),
+                      onPressed: () => context
+                          .read<MostTrindingCubit>()
+                          .toggleLikeFrommostTrending(idx!),
+                      icon: Icon(Iconsax.heart, color: liked ? white : black),
+                      label: Text(
+                        'Wishlist',
+                        style: GoogleFonts.aleo(
+                            color: liked ? white : black,
+                            fontSize: 14,
+                            fontWeight: FontWeight.w600),
+                      ))),
             ],
           ),
         ),
@@ -330,15 +342,22 @@ class ContainerOfFetchingNewItemsInRevenueItems extends StatelessWidget {
                     style: textStyleEffect2,
                   )),
               Positioned(
-                top: 330,
-                left: 180,
-                child: IconButton(
-                    onPressed: () => context
-                        .read<MostTrindingCubit>()
-                        .toggleLikeFrommostTrending(idx!),
-                    icon: Icon(Iconsax.heart,
-                        size: 40, color: liked ? redColor : black)),
-              ),
+                  top: 335,
+                  left: 115,
+                  child: TextButton.icon(
+                      style: const ButtonStyle(
+                          backgroundColor: WidgetStatePropertyAll(redColor)),
+                      onPressed: () => context
+                          .read<MostTrindingCubit>()
+                          .toggleLikeFrommostTrending(idx!),
+                      icon: Icon(Iconsax.heart, color: liked ? white : black),
+                      label: Text(
+                        'Wishlist',
+                        style: GoogleFonts.aleo(
+                            color: liked ? white : black,
+                            fontSize: 14,
+                            fontWeight: FontWeight.w600),
+                      ))),
               Positioned(
                   left: 178,
                   top: 15,
@@ -433,15 +452,22 @@ class ContainerOfFetchingShoeSectionInRevenueItems extends StatelessWidget {
                     style: textStyleEffect2,
                   )),
               Positioned(
-                top: 330,
-                left: 180,
-                child: IconButton(
-                    onPressed: () => context
-                        .read<MostTrindingCubit>()
-                        .toggleLikeFrommostTrending(idx!),
-                    icon: Icon(Iconsax.heart,
-                        size: 40, color: liked ? redColor : black)),
-              ),
+                  top: 335,
+                  left: 115,
+                  child: TextButton.icon(
+                      style: const ButtonStyle(
+                          backgroundColor: WidgetStatePropertyAll(redColor)),
+                      onPressed: () => context
+                          .read<MostTrindingCubit>()
+                          .toggleLikeFrommostTrending(idx!),
+                      icon: Icon(Iconsax.heart, color: liked ? white : black),
+                      label: Text(
+                        'Wishlist',
+                        style: GoogleFonts.aleo(
+                            color: liked ? white : black,
+                            fontSize: 14,
+                            fontWeight: FontWeight.w600),
+                      ))),
             ],
           ),
         ),

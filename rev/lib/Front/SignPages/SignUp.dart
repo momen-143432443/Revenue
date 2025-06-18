@@ -1,3 +1,4 @@
+import 'package:animate_do/animate_do.dart';
 import 'package:css/Backend/Controllers/ForUserControllers/SignUpConroller.dart';
 import 'package:css/Tools/Colors.dart';
 import 'package:flutter/material.dart';
@@ -22,7 +23,7 @@ class _SignupState extends State<Signup> {
     double height = MediaQuery.of(context).size.height;
 
     return Scaffold(
-      backgroundColor: white,
+      backgroundColor: greenColor,
       body: SafeArea(
           child: SingleChildScrollView(
         scrollDirection: Axis.vertical,
@@ -30,24 +31,53 @@ class _SignupState extends State<Signup> {
           child: Column(
             children: [
               sizeBox(50),
-              CsSwaps(
+              Revenues(
                 width: width,
                 height: height,
               ),
-              sizeBox(100),
-              const Email(),
-              sizeBox(15),
-              password(),
-              sizeBox(15),
-              const FirstnameAndLastName(),
-              sizeBox(45),
-              const SaveAndContinue(),
-              sizeBox(235),
+              sizeBox(50),
+              signUpGetStarted(),
+              insertInfoTextFields(),
+              sizeBox(145),
               const PushToSignIn()
             ],
           ),
         ),
       )),
+    );
+  }
+
+  FadeInLeft insertInfoTextFields() {
+    return FadeInLeft(
+      child: Container(
+        margin: const EdgeInsets.symmetric(horizontal: 10),
+        decoration: BoxDecoration(
+            color: white, borderRadius: BorderRadius.circular(20)),
+        child: Column(
+          children: [
+            sizeBox(10),
+            const Email(),
+            sizeBox(15),
+            password(),
+            sizeBox(15),
+            const FirstnameAndLastName(),
+            sizeBox(45),
+            const SaveAndContinue(),
+            sizeBox(10),
+          ],
+        ),
+      ),
+    );
+  }
+
+  FadeInLeft signUpGetStarted() {
+    return FadeInLeft(
+      child: Padding(
+        padding: const EdgeInsets.only(top: 45, right: 90),
+        child: Text("Sign Up, Get Started",
+            style: GoogleFonts.aleo(
+                fontSize: 35, color: white, fontWeight: FontWeight.w600)),
+      ),
     );
   }
 
@@ -83,8 +113,15 @@ class _SignupState extends State<Signup> {
           passVisible = !passVisible;
         });
       },
-      child:
-          passVisible ? const Icon(Iconsax.eye_slash) : const Icon(Iconsax.eye),
+      child: passVisible
+          ? const Icon(
+              Iconsax.eye_slash,
+              color: white,
+            )
+          : const Icon(
+              Iconsax.eye,
+              color: white,
+            ),
     );
   }
 }
@@ -96,20 +133,22 @@ class PushToSignIn extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 12),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          const Text(" have an account? "),
-          GestureDetector(
-              onTap: () => Get.back(),
-              child: Text(
-                "Press here to sign in",
-                style: GoogleFonts.aleo(
-                    color: greenColor, fontWeight: FontWeight.w600),
-              ))
-        ],
+    return FadeInUp(
+      child: Container(
+        margin: const EdgeInsets.only(bottom: 12),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const Text("Already Have An Account? "),
+            GestureDetector(
+                onTap: () => Get.back(),
+                child: Text(
+                  "Press here to sign in",
+                  style: GoogleFonts.aleo(
+                      color: white, fontWeight: FontWeight.w600),
+                ))
+          ],
+        ),
       ),
     );
   }
@@ -157,7 +196,7 @@ class FirstnameAndLastName extends StatelessWidget {
               cursorColor: Colors.white,
               style: const TextStyle(color: black),
               decoration: InputDecoration(
-                suffixIcon: const Icon(Iconsax.user, color: black),
+                suffixIcon: const Icon(Iconsax.user, color: white),
                 labelText: 'First name',
                 labelStyle: const TextStyle(color: black),
                 filled: true,
@@ -181,7 +220,7 @@ class FirstnameAndLastName extends StatelessWidget {
               cursorColor: Colors.white,
               style: const TextStyle(color: black),
               decoration: InputDecoration(
-                suffixIcon: const Icon(Iconsax.user, color: black),
+                suffixIcon: const Icon(Iconsax.user, color: white),
                 labelText: 'Last name',
                 labelStyle: const TextStyle(color: black),
                 filled: true,
@@ -213,10 +252,10 @@ class Email extends StatelessWidget {
         cursorRadius: const Radius.circular(3),
         autocorrect: true,
         enableInteractiveSelection: true,
-        cursorColor: Colors.white,
+        cursorColor: white,
         style: const TextStyle(color: black),
         decoration: InputDecoration(
-          suffixIcon: const Icon(Icons.email_outlined, color: black),
+          suffixIcon: const Icon(Icons.email_outlined, color: white),
           labelText: 'Email',
           labelStyle: const TextStyle(color: black),
           filled: true,
@@ -230,8 +269,8 @@ class Email extends StatelessWidget {
   }
 }
 
-class CsSwaps extends StatelessWidget {
-  const CsSwaps({
+class Revenues extends StatelessWidget {
+  const Revenues({
     super.key,
     required this.width,
     required this.height,
@@ -241,18 +280,20 @@ class CsSwaps extends StatelessWidget {
   final double height;
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
-      width: width / 1.2,
-      height: height / 5,
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Text(
-            'R',
-            style: GoogleFonts.italianno(
-                fontSize: 115, color: lime, fontWeight: FontWeight.w500),
-          ),
-        ],
+    return FadeInDown(
+      child: SizedBox(
+        width: width / 1.2,
+        height: height / 5,
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Text(
+              'R',
+              style: GoogleFonts.italianno(
+                  fontSize: 115, color: white, fontWeight: FontWeight.w500),
+            ),
+          ],
+        ),
       ),
     );
   }
