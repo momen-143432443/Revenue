@@ -9,23 +9,38 @@ class DropFeatureItemIntoHomeScreenIntegration extends Bloc<
     DropFeatureItemIntoHomeScreenEvent, DropFeatureItemIntoHomeScreenState> {
   final ShowFeatureItems showFeatureItems;
   DropFeatureItemIntoHomeScreenIntegration(this.showFeatureItems)
-      : super(DropFeatureItemIntoHomeScreenStateLoading()) {
+      : super(const DropFeatureItemIntoHomeScreenStateLoading()) {
     on<DropFeatureItemIntoHomeScreenEventLoading>(
       (event, emit) async {
-        emit(DropFeatureItemIntoHomeScreenStateLoading());
+        emit(const DropFeatureItemIntoHomeScreenStateLoading());
         try {
           SafeTap.execute(
             context: navigator!.context,
             onTap: () async {
-              print('Loading Connection');
+              // print('Loading Connection');
             },
           );
-          emit(DropFeatureItemIntoHomeScreenStateLoading());
+          emit(const DropFeatureItemIntoHomeScreenStateLoading());
           final items = await showFeatureItems.fetchAllItems();
           emit(DropFeatureItemIntoHomeScreenStateLoaded(items: items));
         } catch (e) {
           emit(DropFeatureItemIntoHomeScreenStateError(e.toString()));
         }
+      },
+    );
+    on<SelectColorFeatureItemEvent>(
+      (event, emit) {
+        final updatedItems = state.items.map(
+          (item) {
+            if (item.id == event.itemId) {
+              return item.copyWith(
+                  selectedColor: item.selectedColor,
+                  selectedSize: item.selectedSize);
+            } else {
+              return item;
+            }
+          },
+        ).toList();
       },
     );
   }

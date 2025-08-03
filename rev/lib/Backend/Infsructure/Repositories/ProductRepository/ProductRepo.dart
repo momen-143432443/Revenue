@@ -26,6 +26,19 @@ class ProductRepo extends GetxController {
     }
   }
 
+  Future<void> deleteOrderInTheBagToTransferringIntoProcessingPage() async {
+    try {
+      await db.collection('Cart').doc(user).delete();
+      print(db.collection('Cart').doc(user).delete() == null);
+    } on FirebaseException catch (e) {
+      throw alerts.ifErrors(e.message.toString());
+    } on PlatformException catch (e) {
+      throw alerts.ifErrors(e.message.toString());
+    } catch (e) {
+      throw e.toString();
+    }
+  }
+
   Future<List<RevenueIemsModel>> getItemsInCart() async {
     try {
       final snap = await db

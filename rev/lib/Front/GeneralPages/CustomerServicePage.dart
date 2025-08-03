@@ -1,5 +1,9 @@
+import 'package:css/Backend/AuthenticationControls/AuthenticationRepo.dart';
+import 'package:css/Front/CustomerService/Chats.dart';
+import 'package:css/Front/CustomerService/ReportsAndFeedbackFromCustomerpages.dart';
 import 'package:css/Tools/Colors.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart' as getx;
 import 'package:google_fonts/google_fonts.dart';
 import 'package:iconsax/iconsax.dart';
 
@@ -62,7 +66,9 @@ class ServiceOptions extends StatelessWidget {
           children: [
             phonenumberService(),
             spaceBetweenExpansionButtons,
+            spaceBetweenExpansionButtons,
             chatService(),
+            spaceBetweenExpansionButtons,
             spaceBetweenExpansionButtons,
             sendReports(),
           ],
@@ -72,7 +78,9 @@ class ServiceOptions extends StatelessWidget {
           children: [
             phonenumberServiceButton(),
             spaceBetweenExpansionButtons,
+            spaceBetweenExpansionButtons,
             chatServiceButton(),
+            spaceBetweenExpansionButtons,
             spaceBetweenExpansionButtons,
             sendReportsButton(),
           ],
@@ -81,17 +89,28 @@ class ServiceOptions extends StatelessWidget {
     );
   }
 
-  Icon sendReportsButton() {
-    return const Icon(
-      Iconsax.arrow_right_3,
-      size: 16,
+  GestureDetector sendReportsButton() {
+    return GestureDetector(
+      onTap: () => getx.Get.to(
+          () => const ReportSendFeedbackFromCustomerPages(),
+          transition: getx.Transition.rightToLeft),
+      child: const Icon(
+        Iconsax.arrow_right_3,
+        size: 16,
+      ),
     );
   }
 
-  Icon chatServiceButton() {
-    return const Icon(
-      Iconsax.arrow_right_3,
-      size: 16,
+  GestureDetector chatServiceButton() {
+    final String? user = AuthenticationRepo.instance.authUser?.uid;
+    return GestureDetector(
+      onTap: () => getx.Get.to(
+          () => Chats(senderId: user!, receiverId: 'Customer Service'),
+          transition: getx.Transition.rightToLeft),
+      child: const Icon(
+        Iconsax.arrow_right_3,
+        size: 16,
+      ),
     );
   }
 
@@ -103,19 +122,36 @@ class ServiceOptions extends StatelessWidget {
     );
   }
 
-  Text sendReports() {
-    return Text(
-      "Send Report&Feedback",
-      style: GoogleFonts.aleo(
-          fontSize: 15, color: black, fontWeight: FontWeight.w500),
+  GestureDetector sendReports() {
+    return GestureDetector(
+      onTap: () => getx.Get.to(
+          () => const ReportSendFeedbackFromCustomerPages(),
+          transition: getx.Transition.rightToLeft),
+      child: Text(
+        "Send Report&Feedback",
+        style: GoogleFonts.aleo(
+            fontSize: 15, color: black, fontWeight: FontWeight.w500),
+      ),
     );
   }
 
-  Text chatService() {
-    return Text(
-      "Chat Now!",
-      style: GoogleFonts.aleo(
-          fontSize: 15, color: black, fontWeight: FontWeight.w500),
+  GestureDetector chatService() {
+    final String? user = AuthenticationRepo.instance.authUser?.uid;
+    return GestureDetector(
+      onTap: () {
+        if (user != null) {
+          getx.Get.to(
+              () => Chats(senderId: user, receiverId: 'Customer Service'),
+              transition: getx.Transition.rightToLeft);
+        } else {
+          getx.Get.snackbar('Error', 'You must be logged in to chat');
+        }
+      },
+      child: Text(
+        "Chat Now!",
+        style: GoogleFonts.aleo(
+            fontSize: 15, color: black, fontWeight: FontWeight.w500),
+      ),
     );
   }
 

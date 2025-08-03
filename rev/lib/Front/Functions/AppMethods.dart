@@ -42,6 +42,18 @@ class AppMethods extends GetxController {
     }
   }
 
+  Future<void> deleteCurrentOrderFromUserCart() async {
+    try {
+      await cartItemsRepo.deleteOrderInTheBagToTransferringIntoProcessingPage();
+    } on FirebaseException catch (e) {
+      print(e.toString());
+    } on PlatformException catch (e) {
+      print(e.toString());
+    } catch (e) {
+      print(e.toString());
+    }
+  }
+
   Future<List<RevenueIemsModel>> getCartItems() async {
     // Loader.startLoading();
     final fetchItems = await cartItemsRepo.getItemsInCart();
@@ -63,22 +75,6 @@ class AppMethods extends GetxController {
 }
 
 class ItemCounts {
-  // ItemCounts._();
-  // static int doItemCounts = 0;
-  // static totalPriceWithTax() {
-  //   int tax = 16;
-  //   final sumOfTotal = tax + ItemCounts.totalPriceWithQuantityOfItems();
-  //   return sumOfTotal;
-  // }
-
-  // static totalPriceWithQuantityOfItems() {
-  //   double totalPrice = 0.0;
-  //   for (var items in itemsInBag) {
-  //     totalPrice += items.price * items.countOfItem;
-  //   }
-  //   return totalPrice;
-  // }
-
   static Future<List<String>> getItemsFromTheCart() async {
     final SharedPreferences pref = await SharedPreferences.getInstance();
 
@@ -95,4 +91,34 @@ class ItemCounts {
 
 String colorToHex(Color color) {
   return '#${color.value.toRadixString(16).padLeft(8, '0').toUpperCase()}';
+}
+
+String generateEstimatedDeliveryText({int daysFromNow = 3}) {
+  final now = DateTime.now();
+  final estimatedDate = now.add(Duration(days: daysFromNow));
+
+  final formattedDate =
+      '${estimatedDate.day}/${monthName(estimatedDate.month)}';
+
+  return 'Estimated Deliver Time $formattedDate';
+}
+
+final deliveryText = generateEstimatedDeliveryText(daysFromNow: 3);
+String monthName(int monthNumber) {
+  const months = [
+    '',
+    'January',
+    'February',
+    'March',
+    'April',
+    'May',
+    'June',
+    'July',
+    'August',
+    'September',
+    'October',
+    'November',
+    'December'
+  ];
+  return months[monthNumber];
 }

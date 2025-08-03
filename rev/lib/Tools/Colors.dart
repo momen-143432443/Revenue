@@ -5,6 +5,7 @@ const Color greenColor = Color.fromARGB(255, 116, 187, 78);
 const Color lime = Color.fromARGB(255, 105, 233, 0);
 const Color blueColor = Color.fromARGB(255, 24, 75, 215);
 const Color black = Color(0xFF000000);
+const Color darkSteel = Color.fromARGB(255, 27, 27, 27);
 const Color milkyblue = Color.fromARGB(255, 0, 208, 255);
 const Color skyer = Colors.blue;
 const Color sea = Color.fromARGB(255, 0, 98, 185);

@@ -1,6 +1,6 @@
 import 'dart:convert';
 import 'package:css/Backend/AuthenticationControls/AuthenticationRepo.dart';
-import 'package:css/Backend/Controllers/ForUserControllers/BaseUrl.dart';
+import 'package:css/Backend/BaseUrl.dart';
 import 'package:css/Front/SignPages/OTPVerificationScreen.dart';
 import 'package:css/Tools/Loader.dart';
 import 'package:flutter/widgets.dart';

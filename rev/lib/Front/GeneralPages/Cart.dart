@@ -1,5 +1,4 @@
 import 'dart:convert';
-
 import 'package:css/Backend/AuthenticationControls/AuthenticationRepo.dart';
 import 'package:css/Backend/Blocs/FetchUserDatafromBloc/FetchNameAndPictureEvent.dart';
 import 'package:css/Backend/Blocs/FetchUserDatafromBloc/FetchNameAndPictureIntegration.dart';
@@ -7,11 +6,12 @@ import 'package:css/Backend/Blocs/FetchUserDatafromBloc/FetchNameAndPictureState
 import 'package:css/Backend/Controllers/ForProductControllers/InsertInfoOfPurchaseProduct.dart';
 import 'package:css/Backend/Controllers/ForProductControllers/ShowAllItems.dart';
 import 'package:css/Backend/Infsructure/Models/ItemsModel.dart';
+import 'package:css/Front/ForOrders/ProcessingOrdersPage.dart';
 import 'package:css/Tools/Alerts.dart';
 import 'package:css/Tools/Colors.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:get/get.dart';
+import 'package:get/get.dart' as getx;
 import 'package:google_fonts/google_fonts.dart';
 import 'package:iconsax/iconsax.dart';
 import 'package:css/Front/Functions/AppMethods.dart';
@@ -19,13 +19,6 @@ import 'package:animate_do/animate_do.dart';
 import 'package:liquid_pull_to_refresh/liquid_pull_to_refresh.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'dart:math' as math;
-
-final cartController = Get.put(AppMethods());
-final insertItemInfo = Get.put(InsertInfoOfPurchaseProduct());
-final showItemsMostOfTrinding = Get.put(ShowAllItemsMostOfTrinding());
-final showItemsShoesProducts = Get.put(ShowAllItemsShoesProducts());
-final showFeatureItems = Get.put(ShowFeatureItems());
-final showNewItems = Get.put(ShowNewItems());
 
 class Cart extends StatefulWidget {
   const Cart({
@@ -37,29 +30,43 @@ class Cart extends StatefulWidget {
 }
 
 class _CommunityState extends State<Cart> {
-  final ScrollController controller = ScrollController();
   bool _isButtonVisible = true;
   bool isEdited = false;
+  final GlobalKey bagPageGlobalKey = GlobalKey();
 
   @override
   Widget build(BuildContext context) {
+    final cartController = getx.Get.put(AppMethods());
+    final insertItemInfo = getx.Get.put(InsertInfoOfPurchaseProduct());
+    final showItemsMostOfTrinding = getx.Get.put(ShowAllItemsMostOfTrinding());
+    final showItemsShoesProducts = getx.Get.put(ShowAllItemsShoesProducts());
+    final showFeatureItems = getx.Get.put(ShowFeatureItems());
+    final showNewItems = getx.Get.put(ShowNewItems());
     final size = MediaQuery.of(context).size;
     return Scaffold(
+      appBar: bagAppBar(size),
       backgroundColor: white,
       body: Center(
-        child: Column(
-          children: [
-            bagAppBar(size),
-            Column(
-              children: [itemsOfBagList(size)],
-            )
-          ],
-        ),
+        child: itemsOfBagList(
+            size,
+            cartController,
+            insertItemInfo,
+            showItemsMostOfTrinding,
+            showItemsShoesProducts,
+            showFeatureItems,
+            showNewItems),
       ),
     );
   }
 
-  MultiBlocProvider itemsOfBagList(Size size) {
+  MultiBlocProvider itemsOfBagList(
+      Size size,
+      AppMethods cartController,
+      InsertInfoOfPurchaseProduct insertItemInfo,
+      ShowAllItemsMostOfTrinding showItemsMostOfTrinding,
+      ShowAllItemsShoesProducts showItemsShoesProducts,
+      ShowFeatureItems showFeatureItems,
+      ShowNewItems showNewItems) {
     return MultiBlocProvider(
         providers: [
           BlocProvider(
@@ -91,17 +98,13 @@ class _CommunityState extends State<Cart> {
                   physics: const AlwaysScrollableScrollPhysics(),
                   child: SizedBox(
                     width: size.width,
-                    height: size.height / 1.11,
+                    height: size.height / 1.21,
                     child: state.cart.isEmpty
                         ? const EmptyState()
                         : Stack(children: [
                             itemsInfo(size),
-                            Obx(
-                              () => insertItemInfo.purchaseSuccess.value
-                                  ? purchaseSuccessAndShowOrderInformation(
-                                      context, size)
-                                  : confirmAndPurchaseAndTotalPrice(size),
-                            )
+                            confirmAndPurchaseAndTotalPrice(
+                                size, bagPageGlobalKey, insertItemInfo)
                           ]),
                   ),
                 ),
@@ -157,27 +160,21 @@ class _CommunityState extends State<Cart> {
                 final RevenueIemsModel itemsbag = item;
                 return SizedBox(
                   width: size.width,
-                  height: size.height / 5.2,
+                  height: size.height / 5.1,
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       SizedBox(
-                        width: size.width,
+                        width: size.width / 1.01,
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
                                 imageOfItemFromBloc(size, cartState, bagIndex),
-                                ////////////////
-                                ///////////////
-                                const SizedBox(
-                                  width: 10,
-                                ),
-
-                                /////////////
-                                ////////////
                                 Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     Container(
                                       margin: const EdgeInsets.only(bottom: 1),
@@ -198,10 +195,11 @@ class _CommunityState extends State<Cart> {
                                         ],
                                       ),
                                     ),
+                                    const SizedBox(height: 4),
                                     Column(
                                       children: [
-                                        colorsAvailableInshowModalBottomSheet(
-                                            size, itemsbag),
+                                        colorSelectedBeforeAddToCart(
+                                            size, item),
                                         const SizedBox(
                                           height: 4,
                                         ),
@@ -215,47 +213,14 @@ class _CommunityState extends State<Cart> {
                                     )
                                   ],
                                 ),
-                                const SizedBox(
-                                  width: 23,
-                                ),
-                                Column(
-                                  children: [
-                                    SizedBox(
-                                      child: IconButton(
-                                        onPressed: () {
-                                          setState(() {
-                                            isEdited = !isEdited;
-                                          });
-                                        },
-                                        icon: const Icon(Iconsax.edit),
-                                        color: black,
-                                      ),
-                                    ),
-                                    SizedBox(
-                                      child: IconButton(
-                                        onPressed: () {
-                                          context
-                                              .read<FetchCartItemsIntegration>()
-                                              .add(
-                                                  DeleteExistSpecificItemFromCart(
-                                                      cartState
-                                                          .cart[bagIndex].id));
-                                          setState(() {
-                                            revItems.removeWhere((element) =>
-                                                element.id == itemsbag.id);
-                                          });
-                                        },
-                                        icon: const Icon(Iconsax.trash),
-                                        color: redColor,
-                                      ),
-                                    ),
-                                  ],
-                                ),
+                                editAndDeleteIconsMethod(context, cartState,
+                                    bagIndex, revItems, itemsbag),
                               ],
                             ),
                           ],
                         ),
                       ),
+                      const Divider()
                     ],
                   ),
                 );
@@ -266,6 +231,74 @@ class _CommunityState extends State<Cart> {
         },
       ),
     );
+  }
+
+  Column editAndDeleteIconsMethod(
+      BuildContext context,
+      FetchCartItemsStateLoaded cartState,
+      int bagIndex,
+      List<RevenueIemsModel> revItems,
+      RevenueIemsModel itemsbag) {
+    return Column(
+      children: [
+        SizedBox(
+          child: IconButton(
+            onPressed: () {
+              setState(() {
+                isEdited = !isEdited;
+              });
+            },
+            icon: const Icon(Iconsax.edit),
+            color: black,
+          ),
+        ),
+        SizedBox(
+          child: IconButton(
+            onPressed: () {
+              context.read<FetchCartItemsIntegration>().add(
+                  DeleteExistSpecificItemFromCart(cartState.cart[bagIndex].id));
+              setState(() {
+                revItems.removeWhere((element) => element.id == itemsbag.id);
+              });
+            },
+            icon: const Icon(Iconsax.trash),
+            color: redColor,
+          ),
+        ),
+      ],
+    );
+  }
+
+  Container colorSelectedBeforeAddToCart(Size size, RevenueIemsModel item) {
+    return Container(
+        margin: const EdgeInsets.only(right: 90),
+        height: size.height * 0.04,
+        width: size.width / 3.79,
+        child: Row(
+          children: [
+            Text("Color:",
+                style: GoogleFonts.aleo(
+                    fontSize: 14, color: black, fontWeight: FontWeight.w600)),
+            SizedBox(
+                width: size.width / 6,
+                child: Container(
+                  margin: const EdgeInsets.symmetric(horizontal: 12),
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(100),
+                  ),
+                  child: ElevatedButton(
+                      style: ButtonStyle(
+                          backgroundColor:
+                              WidgetStatePropertyAll(item.itemColor)),
+                      onPressed: () => setState(() {
+                            // onColorSelected(color);
+                          }),
+                      child: const Text(
+                        '',
+                      )),
+                ))
+          ],
+        ));
   }
 
   SizedBox priceOfTheItemWithIncreaseAndDecreaseItemCount(
@@ -362,10 +395,10 @@ class _CommunityState extends State<Cart> {
   SizedBox imageOfItemFromBloc(
       Size size, FetchCartItemsStateLoaded cartState, int bagIndex) {
     return SizedBox(
-        width: size.width * 0.4,
+        width: size.width * 0.3,
         child: Container(
             decoration: BoxDecoration(
-                border: Border.all(color: cartState.cart[bagIndex].itemColor),
+                border: Border.all(color: black),
                 borderRadius: BorderRadius.circular(20)),
             width: 140,
             height: 140,
@@ -388,6 +421,8 @@ class _CommunityState extends State<Cart> {
           cartState.cart[bagIndex].model,
           style: GoogleFonts.aleo(
               fontSize: 10, color: black, fontWeight: FontWeight.w500),
+          maxLines: 2,
+          overflow: TextOverflow.ellipsis,
         ),
       ],
     );
@@ -436,18 +471,27 @@ class _CommunityState extends State<Cart> {
   Container showSizeOfItem(
       RevenueIemsModel itemsbag, SizedBox sizedBoxBewtweenTriggers) {
     final aSize = MediaQuery.of(context).size;
+    final ifTheresTypeheadsets =
+        (itemsbag.type ?? '').trim().toLowerCase() == 'headsets';
+    final ifTheresTypebags =
+        (itemsbag.type ?? '').trim().toLowerCase() == 'bags';
+
     return Container(
-        margin: const EdgeInsets.only(right: 90),
+        margin: EdgeInsets.only(right: aSize.width / 3.12),
         height: aSize.height * 0.04,
-        width: aSize.width / 6.1,
+        width: aSize.width / 5.7,
         child: Row(
           children: [
-            Text("Size:",
+            Text("Size: ",
                 style: GoogleFonts.aleo(
                     fontSize: 14, color: black, fontWeight: FontWeight.w600)),
-            Text("${itemsbag.selectedSize}",
-                style: GoogleFonts.aleo(
-                    fontSize: 14, color: black, fontWeight: FontWeight.w600))
+            (ifTheresTypeheadsets || ifTheresTypebags)
+                ? const Text('')
+                : Text("${itemsbag.selectedSize}",
+                    style: GoogleFonts.aleo(
+                        fontSize: 14,
+                        color: black,
+                        fontWeight: FontWeight.w600))
           ],
         ));
   }
@@ -597,7 +641,42 @@ class _CommunityState extends State<Cart> {
         ));
   }
 
-  MultiBlocProvider confirmAndPurchaseAndTotalPrice(Size size) {
+  MultiBlocProvider confirmAndPurchaseAndTotalPrice(
+    Size size,
+    GlobalKey bagPageGlobalKey,
+    InsertInfoOfPurchaseProduct insertItemInfo,
+  ) {
+    void showPop() async {
+      final context = bagPageGlobalKey.currentContext;
+      if (context == null) return;
+      final renderObject = context.findRenderObject();
+      if (renderObject is! RenderBox) return;
+
+      final overLayEntry = OverlayEntry(
+        builder: (context) {
+          return Positioned(
+              right: 40,
+              top: 97,
+              child: Material(
+                elevation: 8,
+                child: Container(
+                  color: grey,
+                  padding: const EdgeInsets.all(10),
+                  child: Text("Your Order Has Been Moved To Processing Page",
+                      style: GoogleFonts.aleo(
+                        color: black,
+                        fontWeight: FontWeight.w600,
+                      )),
+                ),
+              ));
+        },
+      );
+      Overlay.of(context).insert(overLayEntry);
+      await Future.delayed(const Duration(seconds: 3));
+      overLayEntry.remove();
+    }
+
+    final appMethod = getx.Get.put(AppMethods());
     return MultiBlocProvider(
       providers: [
         BlocProvider(
@@ -634,124 +713,121 @@ class _CommunityState extends State<Cart> {
               final List<Map<String, dynamic>> itemsJson = cartState.cart
                   .map((e) => e.fromCartJsonToMongoDbDatabase())
                   .toList();
+              await appMethod.deleteCurrentOrderFromUserCart();
               await insertItemInfo.purchaseProductToDataBase(
                   userId, itemsJson, totalPrice());
-              await insertItemInfo.checkOrderStatus(userId);
+              showPop();
+              // await insertItemInfo.checkOrderStatus(userId);
             }
 
-            print('!!!!!!!!!!!!!!!!!!!!!!!!!!!');
-            print(insertItemInfo.purchaseSuccess.value);
             return SizedBox(
+                key: bagPageGlobalKey,
                 child: SizedBox(
-              height: size.height,
-              child: Stack(
-                children: [
-                  Positioned(
-                      left: 20,
-                      top: 800,
-                      child: FadeInUp(
-                        delay: const Duration(milliseconds: 100),
-                        child: GestureDetector(
-                          onPanUpdate: (details) {
-                            if (details.delta.dy > 10) {
-                              setState(() {
-                                _isButtonVisible = false;
-                              });
-                            } else {
-                              setState(() {
-                                _isButtonVisible = true;
-                              });
-                            }
-                          },
-                          onTap: () => insertItemInfo.purchaseSuccess.value
-                              ? null
-                              : showModalBottomSheet(
-                                  isScrollControlled: true,
-                                  backgroundColor: white,
-                                  enableDrag: true,
-                                  shape: const RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.all(
-                                          Radius.circular(14))),
-                                  context: context,
-                                  builder: (context) {
-                                    return SizedBox(
-                                      height: size.height / 3,
-                                      child: SingleChildScrollView(
-                                        child: Center(
-                                          child: Column(
-                                            children: [
-                                              howDoYouLikeToPayText(),
-                                              const SizedBox(
-                                                height: 4,
-                                              ),
-                                              waysToPay(),
-                                              const SizedBox(
-                                                height: 4,
-                                              ),
-                                              total(
-                                                  size, showTotalPriceInButton),
-                                              const SizedBox(
-                                                height: 6,
-                                              ),
-                                              // deliverCompanies(
-                                              //     size,
-                                              //     ),
-                                              const SizedBox(
-                                                height: 14,
-                                              ),
-                                              confirmPurchase(
-                                                  size, cartCheckOut)
-                                            ],
-                                          ),
+                  height: size.height,
+                  child: Stack(
+                    children: [
+                      Positioned(
+                          left: 20,
+                          top: size.height * 0.79,
+                          child: FadeInUp(
+                            delay: const Duration(milliseconds: 100),
+                            child: GestureDetector(
+                              onPanUpdate: (details) {
+                                if (details.delta.dy > 10) {
+                                  setState(() {
+                                    _isButtonVisible = false;
+                                  });
+                                } else {
+                                  setState(() {
+                                    _isButtonVisible = true;
+                                  });
+                                }
+                              },
+                              onTap: () => showModalBottomSheet(
+                                isScrollControlled: true,
+                                backgroundColor: white,
+                                enableDrag: true,
+                                shape: const RoundedRectangleBorder(
+                                    borderRadius:
+                                        BorderRadius.all(Radius.circular(14))),
+                                context: context,
+                                builder: (context) {
+                                  return SizedBox(
+                                    height: size.height / 3,
+                                    child: SingleChildScrollView(
+                                      child: Center(
+                                        child: Column(
+                                          children: [
+                                            orderDetails(),
+                                            const SizedBox(
+                                              height: 4,
+                                            ),
+                                            estimatedDeliverTime(),
+                                            const SizedBox(
+                                              height: 4,
+                                            ),
+                                            total(size, showTotalPriceInButton),
+                                            const SizedBox(
+                                              height: 6,
+                                            ),
+                                            // deliverCompanies(
+                                            //     size,
+                                            //     ),
+                                            const SizedBox(
+                                              height: 14,
+                                            ),
+                                            confirmPurchase(size, cartCheckOut)
+                                          ],
                                         ),
                                       ),
-                                    );
-                                  },
-                                ),
-                          child: AnimatedOpacity(
-                            duration: const Duration(milliseconds: 300),
-                            opacity: _isButtonVisible ? 1.0 : 0.0,
-                            child: Container(
-                              height: size.height / 22,
-                              width: size.width / 1.1,
-                              decoration: BoxDecoration(
-                                color: blueColor,
-                                border: Border.all(),
-                                borderRadius: BorderRadius.circular(5),
+                                    ),
+                                  );
+                                },
                               ),
-                              child: Padding(
-                                padding:
-                                    const EdgeInsets.symmetric(horizontal: 12),
-                                child: Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    Text(
-                                      'Confirm & purchase',
-                                      style: GoogleFonts.aleo(
-                                        fontSize: 20,
-                                        color: white,
-                                        fontWeight: FontWeight.w600,
-                                      ),
+                              child: AnimatedOpacity(
+                                duration: const Duration(milliseconds: 300),
+                                opacity: _isButtonVisible ? 1.0 : 0.0,
+                                child: Container(
+                                  height: size.height / 22,
+                                  width: size.width / 1.1,
+                                  decoration: BoxDecoration(
+                                    color: blueColor,
+                                    border: Border.all(),
+                                    borderRadius: BorderRadius.circular(5),
+                                  ),
+                                  child: Padding(
+                                    padding: const EdgeInsets.symmetric(
+                                        horizontal: 12),
+                                    child: Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        Text(
+                                          'Confirm & purchase',
+                                          style: GoogleFonts.aleo(
+                                            fontSize: 20,
+                                            color: white,
+                                            fontWeight: FontWeight.w600,
+                                          ),
+                                        ),
+                                        Text(
+                                          'Total:${showTotalPriceInButton()}',
+                                          style: GoogleFonts.aleo(
+                                            fontSize: 14,
+                                            color: white,
+                                            fontWeight: FontWeight.w600,
+                                          ),
+                                        ),
+                                      ],
                                     ),
-                                    Text(
-                                      'Total:${showTotalPriceInButton()}',
-                                      style: GoogleFonts.aleo(
-                                        fontSize: 14,
-                                        color: white,
-                                        fontWeight: FontWeight.w600,
-                                      ),
-                                    ),
-                                  ],
+                                  ),
                                 ),
                               ),
                             ),
-                          ),
-                        ),
-                      ))
-                ],
-              ),
-            ));
+                          ))
+                    ],
+                  ),
+                ));
           }
           return Container();
         },
@@ -885,55 +961,17 @@ class _CommunityState extends State<Cart> {
     );
   }
 
-  FadeInLeft waysToPay() {
+  FadeInLeft estimatedDeliverTime() {
     return FadeInLeft(
-      duration: const Duration(milliseconds: 200),
-      delay: const Duration(seconds: 1),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          ElevatedButton.icon(
-              style: const ButtonStyle(
-                  backgroundColor: WidgetStatePropertyAll(grey)),
-              icon: const Icon(
-                Icons.credit_card,
-                color: black,
-              ),
-              onPressed: () {},
-              label: Text(
-                'Visa',
-                style:
-                    GoogleFonts.aleo(color: black, fontWeight: FontWeight.w600),
-              )),
-          ElevatedButton.icon(
-            style: const ButtonStyle(
-                backgroundColor: WidgetStatePropertyAll(grey)),
-            onPressed: () {},
-            label: Text(
-              "Paypal",
-              style:
-                  GoogleFonts.aleo(color: black, fontWeight: FontWeight.w600),
-            ),
-            icon: const Icon(
-              Icons.paypal,
-              color: black,
-            ),
-          ),
-          ElevatedButton(
-              style: const ButtonStyle(
-                  backgroundColor: WidgetStatePropertyAll(grey)),
-              onPressed: () {},
-              child: Text(
-                "Cash On Delivery(COD)",
-                style:
-                    GoogleFonts.aleo(color: black, fontWeight: FontWeight.w600),
-              ))
-        ],
-      ),
-    );
+        duration: const Duration(milliseconds: 200),
+        delay: const Duration(seconds: 1),
+        child: Text(
+          generateEstimatedDeliveryText(daysFromNow: 3),
+          style: GoogleFonts.aleo(color: black, fontWeight: FontWeight.w600),
+        ));
   }
 
-  FadeInLeft howDoYouLikeToPayText() {
+  FadeInLeft orderDetails() {
     return FadeInLeft(
         duration: const Duration(milliseconds: 200),
         child: Container(
@@ -948,7 +986,7 @@ class _CommunityState extends State<Cart> {
                     size: 30,
                   )),
               Text(
-                "How do you like to pay",
+                "Order Details",
                 style: GoogleFonts.aleo(
                     fontSize: 24, color: black, fontWeight: FontWeight.w500),
               ),
@@ -957,36 +995,41 @@ class _CommunityState extends State<Cart> {
         ));
   }
 
-  MultiBlocProvider bagAppBar(Size size) {
-    return MultiBlocProvider(
-        providers: [
-          BlocProvider(
-              create: (context) => FetchCartItemsIntegration(AppMethods())
-                ..add(
-                  FetchCartitemsEventLoading(),
-                )),
-        ],
-        child: BlocBuilder<FetchCartItemsIntegration, FetchCartItemsState>(
-            builder: (context, cartState) {
-          final Alerts alerts = Alerts();
-          if (cartState is FetchCartItemsStateLoading) {
-            return Container(
-                margin: const EdgeInsets.only(top: 20, right: 300),
-                child: Text(
-                  "Loading...",
-                  style: GoogleFonts.aleo(
-                      fontSize: 15, color: black, fontWeight: FontWeight.w600),
-                ));
-          } else if (cartState is FetchCartItemsStateLoaded) {
-            //To show of total of items in the bag, based on  firestore
-            final totalItems =
-                cartState.cart.fold(0, (sum, item) => sum + item.countOfItem);
-            return SizedBox(
-                width: size.width,
-                height: size.height * 0.05,
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 30),
+  AppBar bagAppBar(
+    Size size,
+  ) {
+    return AppBar(backgroundColor: white, surfaceTintColor: white, actions: [
+      MultiBlocProvider(
+          providers: [
+            BlocProvider(
+                create: (context) => FetchCartItemsIntegration(AppMethods())
+                  ..add(
+                    FetchCartitemsEventLoading(),
+                  )),
+          ],
+          child: BlocBuilder<FetchCartItemsIntegration, FetchCartItemsState>(
+              builder: (context, cartState) {
+            final Alerts alerts = Alerts();
+            if (cartState is FetchCartItemsStateLoading) {
+              return Container(
+                  margin: const EdgeInsets.only(top: 20, right: 300),
+                  child: Text(
+                    "Loading...",
+                    style: GoogleFonts.aleo(
+                        fontSize: 15,
+                        color: black,
+                        fontWeight: FontWeight.w600),
+                  ));
+            } else if (cartState is FetchCartItemsStateLoaded) {
+              //To show of total of items in the bag, based on  firestore
+              final totalItems =
+                  cartState.cart.fold(0, (sum, item) => sum + item.countOfItem);
+              return Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 10),
+                  width: size.width,
+                  height: size.height * 0.05,
                   child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.center,
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Text(
@@ -996,23 +1039,40 @@ class _CommunityState extends State<Cart> {
                             color: black,
                             fontWeight: FontWeight.w600),
                       ),
-                      Text(
-                        'Total Items $totalItems',
-                        style: GoogleFonts.aleo(
-                            fontSize: 15,
-                            color: black,
-                            fontWeight: FontWeight.w600),
+                      SizedBox(
+                        width: size.width / 2,
+                        child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          mainAxisAlignment: MainAxisAlignment.end,
+                          children: [
+                            Text(
+                              'Total Items $totalItems',
+                              style: GoogleFonts.aleo(
+                                  fontSize: 15,
+                                  color: black,
+                                  fontWeight: FontWeight.w600),
+                            ),
+                            IconButton(
+                                onPressed: () => getx.Get.to(
+                                    () => const ProcessingOrdersPage(),
+                                    transition: getx.Transition.rightToLeft),
+                                icon: const Icon(
+                                  Iconsax.arrow_swap_horizontal,
+                                  color: black,
+                                ))
+                          ],
+                        ),
                       ),
                     ],
-                  ),
-                ));
-          } else if (cartState is FetchCartItemsStateEmpty) {
-            return const EmptyState();
-          } else if (cartState is FetchCartItemsStateError) {
-            return alerts.ifErrors(cartState.err);
-          }
-          return Container();
-        }));
+                  ));
+            } else if (cartState is FetchCartItemsStateEmpty) {
+              return const EmptyState();
+            } else if (cartState is FetchCartItemsStateError) {
+              return alerts.ifErrors(cartState.err);
+            }
+            return Container();
+          })),
+    ]);
   }
 }
 

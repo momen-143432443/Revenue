@@ -9,20 +9,37 @@ class DropShoeItemsIntoHomeScreenIntegration extends Bloc<
     DropShoeItemsIntoHomeScreenEvent, DropShoeItemsIntoHomeScreenState> {
   final ShowAllItemsShoesProducts itemsShoesProducts;
   DropShoeItemsIntoHomeScreenIntegration(this.itemsShoesProducts)
-      : super(DropShoeItemsIntoHomeScreenStateLoading()) {
+      : super(const DropShoeItemsIntoHomeScreenStateLoading()) {
     on<DropShoeItemsIntoHomeScreenEventLoading>(
       (event, emit) async {
         SafeTap.execute(
           context: navigator!.context,
           onTap: () async {
-            print('Loading Connection');
+            // print('Loading Connection');
           },
         );
-        emit(DropShoeItemsIntoHomeScreenStateLoading());
+        emit(const DropShoeItemsIntoHomeScreenStateLoading());
         try {
           final items = await itemsShoesProducts.fetchAllItems();
           emit(DropShoeItemsIntoHomeScreenStateLoaded(items: items));
-        } catch (e) {}
+        } catch (e) {
+          emit(DropShoeItemsIntoHomeScreenStateError(e.toString()));
+        }
+      },
+    );
+    on<SelectShoeItemsColorEvent>(
+      (event, emit) {
+        final updatedItem = state.items.map(
+          (item) {
+            if (item.id == event.itemId) {
+              return item.copyWith(
+                  selectedColor: item.selectedColor,
+                  selectedSize: item.selectedSize);
+            } else {
+              return item;
+            }
+          },
+        );
       },
     );
   }

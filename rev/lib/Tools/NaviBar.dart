@@ -34,7 +34,7 @@ class _NaviBarState extends State<NaviBar> {
             color: greenColor,
             animationDuration: const Duration(milliseconds: 300),
             animationCurve: Curves.fastOutSlowIn,
-            height: 45,
+            height: 50,
             items: const [
               Icon(
                 Iconsax.shop,

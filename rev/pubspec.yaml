@@ -39,9 +39,9 @@ dependencies:
   path_provider: ^2.1.5
   iconsax: ^0.0.8
   get: ^4.6.6
-  firebase_core: ^3.8.0
-  firebase_auth: ^5.3.3  # Firebase Authentication (optional, if needed)
-  cloud_firestore: ^5.5.0
+  firebase_core: ^3.14.0
+  firebase_auth: ^5.6.0  # Firebase Authentication (optional, if needed)
+  cloud_firestore: ^5.6.9
   loading_animation_widget: ^1.2.1
   equatable: ^2.0.5
   flutter_bloc: ^8.1.6
@@ -58,6 +58,11 @@ dependencies:
   remixicon: ^1.0.0
   uicons: ^1.0.1
   liquid_pull_to_refresh: ^3.0.0
+  firebase_messaging: ^15.2.7
+  lottie: ^3.3.1
+  google_sign_in: ^6.2.1
+  flutter_localizations:
+    sdk: flutter
 
 
 flutter_native_splash:
@@ -67,31 +72,32 @@ flutter_native_splash:
   ios: true
   android_gravity: center
   ios_content_mode: scaleAspectFit
+  fullscreen: true
 
 flutter_launcher_icons:
   android: "launcher_icon"
   ios: true
-  image_path: "assets/icon/Revenue_logo.png"
-  icon_size: 192
+  image_path: "assets/icon/Revenue.png"
+  icon_size: 256
   min_sdk_android: 21 # android min sdk min:16, default 21
   web:
     generate: true
-    image_path: "assets/icon/Revenue_logo.png"
+    image_path: "assets/icon/Revenue.png"
     background_color: "#hexcode"
     theme_color: "#hexcode"
   windows:
     generate: true
-    image_path: "assets/icon/Revenue_logo.png"
+    image_path: "assets/icon/Revenue.png"
     icon_size: 48 # min:48, max:256, default: 48
   macos:
     generate: true
-    image_path: "assets/icon/Revenue_logo.png"
+    image_path: "assets/icon/Revenue.png"
     # remove_alpha_ios: true
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
-
+  
   # The "flutter_lints" package below contains a set of recommended lints to
   # encourage good coding practices. The lint set provided by the package is
   # activated in the `analysis_options.yaml` file located at the root of your
@@ -114,6 +120,7 @@ flutter:
   assets:
     - assets/images/
     - assets/icon/
+    - assets/lottie/
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images

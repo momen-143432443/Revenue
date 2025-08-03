@@ -438,6 +438,35 @@ class Alerts {
     ));
   }
 
+  youMustRecviveYourPreviousOrder() {
+    return ScaffoldMessenger.of(navigator!.context).showSnackBar(SnackBar(
+      dismissDirection: DismissDirection.down,
+      width: widthOfButton / 1.3 + 20,
+      behavior: SnackBarBehavior.floating,
+      backgroundColor: white,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
+      content: const Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisAlignment: MainAxisAlignment.spaceAround,
+        children: [
+          Icon(
+            Icons.error_outline,
+            color: redColor,
+          ),
+          Text(
+            "You Must Recvive Your Previous Order.",
+            style: TextStyle(color: redColor),
+          ),
+          Text(
+            '.',
+            style: TextStyle(color: Colors.transparent, fontSize: 1),
+          )
+        ],
+      ),
+      duration: const Duration(seconds: 2),
+    ));
+  }
+
   purchaseSuccessfully() {
     return ScaffoldMessenger.of(navigator!.context).showSnackBar(SnackBar(
       dismissDirection: DismissDirection.down,
@@ -455,6 +484,35 @@ class Alerts {
           ),
           Text(
             "Purchase Successfully",
+            style: TextStyle(color: greenColor),
+          ),
+          Text(
+            '.',
+            style: TextStyle(color: Colors.transparent, fontSize: 1),
+          )
+        ],
+      ),
+      duration: const Duration(seconds: 2),
+    ));
+  }
+
+  reportSentSuccessfully() {
+    return ScaffoldMessenger.of(navigator!.context).showSnackBar(SnackBar(
+      dismissDirection: DismissDirection.down,
+      width: widthOfButton / 1.3 + 20,
+      behavior: SnackBarBehavior.floating,
+      backgroundColor: white,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
+      content: const Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisAlignment: MainAxisAlignment.spaceAround,
+        children: [
+          Icon(
+            Icons.error_outline,
+            color: greenColor,
+          ),
+          Text(
+            "Report Sent Successfully",
             style: TextStyle(color: greenColor),
           ),
           Text(

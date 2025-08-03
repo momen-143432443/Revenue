@@ -4,13 +4,15 @@ class UserModel {
   final String? password;
   final String firstName;
   final String lastName;
+  final String userPic;
 
   const UserModel(
       {required this.id,
       required this.email,
       required this.password,
       required this.firstName,
-      required this.lastName});
+      required this.lastName,
+      required this.userPic});
 
   Map<String, dynamic> toJson() {
     return {
@@ -23,7 +25,12 @@ class UserModel {
   }
 
   static UserModel userDataEmpty() => const UserModel(
-      id: '', email: '', password: '', firstName: '', lastName: '');
+      id: '',
+      email: '',
+      password: '',
+      firstName: '',
+      lastName: '',
+      userPic: '');
 
   factory UserModel.fromSnapshot(Map<String, dynamic> json) {
     return UserModel(
@@ -31,6 +38,7 @@ class UserModel {
         email: json["email"],
         password: json["password"],
         firstName: json["firstName"],
-        lastName: json['lastName']);
+        lastName: json['lastName'],
+        userPic: json['userPic'] ?? '');
   }
 }

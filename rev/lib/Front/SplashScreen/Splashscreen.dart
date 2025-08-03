@@ -1,3 +1,4 @@
+import 'package:css/Backend/Controllers/ForNotificationContorller/NotificationController.dart';
 import 'package:css/Tools/Colors.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -10,6 +11,12 @@ class SplashScreen extends StatefulWidget {
 }
 
 class _SplashScreenState extends State<SplashScreen> {
+  @override
+  void initState() {
+    super.initState();
+    NotificationController.intance.initializeFCM(context);
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(

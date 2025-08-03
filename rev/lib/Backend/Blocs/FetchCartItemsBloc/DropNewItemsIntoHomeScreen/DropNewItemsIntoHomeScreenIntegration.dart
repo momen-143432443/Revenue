@@ -9,20 +9,37 @@ class DropNewItemsIntoHomeScreenIntegration extends Bloc<
     DropNewItemsIntoHomeScreenEvent, DropNewItemsIntoHomeScreenState> {
   final ShowNewItems showNewItems;
   DropNewItemsIntoHomeScreenIntegration(this.showNewItems)
-      : super(DropNewItemsIntoHomeScreenStateLoading()) {
+      : super(const DropNewItemsIntoHomeScreenStateLoading()) {
     on<DropNewItemsIntoHomeScreenEventLoading>(
       (event, emit) async {
         SafeTap.execute(
           context: navigator!.context,
           onTap: () async {
-            print('Loading Connection');
+            // print('Loading Connection');
           },
         );
-        emit(DropNewItemsIntoHomeScreenStateLoading());
+        emit(const DropNewItemsIntoHomeScreenStateLoading());
         try {
           final allItems = await showNewItems.fetchAllItems();
           emit(DropNewItemsIntoHomeScreenStateLoaded(items: allItems));
-        } catch (e) {}
+        } catch (e) {
+          emit(DropNewItemsIntoHomeScreenStateError(e.toString()));
+        }
+      },
+    );
+    on<SelectNewItemsColorEvent>(
+      (event, emit) {
+        final updatedItems = state.items.map(
+          (item) {
+            if (item.id == event.itemId) {
+              return item.copyWith(
+                  selectedColor: item.selectedColor,
+                  selectedSize: item.selectedSize);
+            } else {
+              return item;
+            }
+          },
+        ).toList();
       },
     );
   }

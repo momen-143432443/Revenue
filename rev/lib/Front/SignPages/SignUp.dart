@@ -26,7 +26,6 @@ class _SignupState extends State<Signup> {
       backgroundColor: greenColor,
       body: SafeArea(
           child: SingleChildScrollView(
-        scrollDirection: Axis.vertical,
         child: SizedBox(
           child: Column(
             children: [
@@ -36,7 +35,7 @@ class _SignupState extends State<Signup> {
                 height: height,
               ),
               sizeBox(50),
-              signUpGetStarted(),
+              signUpGetStarted(width),
               insertInfoTextFields(),
               sizeBox(145),
               const PushToSignIn()
@@ -70,13 +69,19 @@ class _SignupState extends State<Signup> {
     );
   }
 
-  FadeInLeft signUpGetStarted() {
+  FadeInLeft signUpGetStarted(double size) {
     return FadeInLeft(
-      child: Padding(
-        padding: const EdgeInsets.only(top: 45, right: 90),
-        child: Text("Sign Up, Get Started",
-            style: GoogleFonts.aleo(
-                fontSize: 35, color: white, fontWeight: FontWeight.w600)),
+      child: Container(
+        margin: EdgeInsets.only(
+          top: size / 8.83,
+        ),
+        child: Container(
+          margin: EdgeInsets.only(left: size / 12),
+          width: size,
+          child: Text("Sign Up, Get Started",
+              style: GoogleFonts.aleo(
+                  fontSize: 35, color: white, fontWeight: FontWeight.w600)),
+        ),
       ),
     );
   }

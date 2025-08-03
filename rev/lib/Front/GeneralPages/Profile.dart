@@ -1,16 +1,23 @@
-import 'package:css/Backend/Controllers/ForProductControllers/SearchBarController.dart';
+import 'dart:convert';
+import 'dart:typed_data';
+
+import 'package:css/Backend/Controllers/ForProductControllers/MoreSectionController.dart';
 import 'package:css/Backend/Controllers/ForUserControllers/ProfileController.dart';
 import 'package:css/Backend/Controllers/ForUserControllers/SignOutController.dart';
+import 'package:css/Backend/Infsructure/Models/ItemsModel.dart';
 import 'package:css/Backend/Infsructure/Models/UserModel.dart';
+import 'package:css/Front/ForOrders/ProcessingOrdersPage.dart';
 import 'package:css/Front/GeneralPages/CustomerServicePage.dart';
+import 'package:css/Front/GeneralPages/SearchPage.dart';
 import 'package:css/Tools/Colors.dart';
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
+import 'package:get/get.dart' as getx;
 import 'package:google_fonts/google_fonts.dart';
 import 'package:iconsax/iconsax.dart';
+import 'package:liquid_pull_to_refresh/liquid_pull_to_refresh.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 
-final searchControl = Get.put(SearchbarController());
+final moreSec = getx.Get.put(MoreSectionController());
 const SizedBox spaceBetweenExpansionButtons = SizedBox(height: 7);
 const SizedBox spaceBetweenWidgets = SizedBox(width: 10);
 
@@ -26,7 +33,7 @@ class Profile extends StatefulWidget {
 class _ProfileState extends State<Profile> {
   @override
   Widget build(BuildContext context) {
-    final userData = Get.put(ProfileController());
+    final userData = getx.Get.put(ProfileController());
     final size = MediaQuery.of(context).size;
     return Scaffold(
       appBar: AppBar(
@@ -37,20 +44,29 @@ class _ProfileState extends State<Profile> {
         shadowColor: white,
       ),
       backgroundColor: white,
-      body: SafeArea(child: SingleChildScrollView(child: Obx(
-        () {
-          final user = userData.user.value;
-          if (user.email == null || user.email!.isEmpty) {
-            return Padding(
-              padding: const EdgeInsets.only(top: 400),
-              child: Center(
-                  child: LoadingAnimationWidget.progressiveDots(
-                      color: lime, size: 55)),
-            );
-          }
-          return showUserDataInScreen(user);
-        },
-      ))),
+      body: LiquidPullToRefresh(
+        springAnimationDurationInMilliseconds: 20,
+        animSpeedFactor: 20,
+        height: 35,
+        showChildOpacityTransition: false,
+        backgroundColor: white,
+        color: greenColor,
+        onRefresh: () async => moreSec.moreItems,
+        child: SafeArea(child: getx.Obx(
+          () {
+            final user = userData.user.value;
+            if (user.email == null || user.email!.isEmpty) {
+              return Padding(
+                padding: const EdgeInsets.only(top: 400),
+                child: Center(
+                    child: LoadingAnimationWidget.progressiveDots(
+                        color: lime, size: 55)),
+              );
+            }
+            return showUserDataInScreen(user);
+          },
+        )),
+      ),
       endDrawer: SettingsAndActivity(size: size),
     );
   }
@@ -60,15 +76,19 @@ class _ProfileState extends State<Profile> {
     return SizedBox(
       child: Column(
         children: [
-          userImageAndFullName(users),
-          const FeaturesList(),
-          border(),
-          const MyOrdersSection(),
-          border(),
-          //////////////////////////
-          ///////More Section///////
-          /////////////////////////
-          moreTextSectoin(),
+          Column(
+            children: [
+              userImageAndFullName(users),
+              const FeaturesList(),
+              border(),
+              const MyOrdersSection(),
+              border(),
+              //////////////////////////
+              ///////More Section///////
+              /////////////////////////
+              moreTextSectoin(),
+            ],
+          ),
           listOfItemOfMoreSection(siz)
         ],
       ),
@@ -83,84 +103,104 @@ class _ProfileState extends State<Profile> {
                 fontSize: 17, color: black, fontWeight: FontWeight.w500)));
   }
 
-  GridView listOfItemOfMoreSection(Size siz) {
-    return GridView.builder(
-      padding: const EdgeInsets.all(8),
-      shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(),
-      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: 2,
-        crossAxisSpacing: 8.0,
-        mainAxisSpacing: 8.0,
-        childAspectRatio: 0.75, // Adjust as needed
+  Expanded listOfItemOfMoreSection(Size siz) {
+    return Expanded(
+      child: SizedBox(
+        child: GridView.builder(
+          scrollDirection: Axis.vertical,
+          padding: const EdgeInsets.all(8),
+          shrinkWrap: true,
+          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: 2,
+            crossAxisSpacing: 8.0,
+            mainAxisSpacing: 8.0,
+            childAspectRatio: 0.75, // Adjust as needed
+          ),
+          itemCount: moreSec.moreItems.length,
+          itemBuilder: (context, index) {
+            final item = moreSec.items[index];
+            return Container(
+              decoration: BoxDecoration(
+                border: Border.all(color: grey),
+                borderRadius: BorderRadius.circular(20),
+              ),
+              margin: EdgeInsets.symmetric(
+                horizontal: siz.height * 0.010,
+                vertical: siz.height * 0.01,
+              ),
+              width: siz.width / 1.5,
+              child: Stack(
+                children: [
+                  Image.memory(base64Decode(item.imgAdress),
+                      fit: BoxFit.contain),
+                  Positioned(
+                    top: 200,
+                    left: 4,
+                    child: Row(
+                      children: [
+                        Text(item.name,
+                            style: GoogleFonts.aleo(
+                                color: black,
+                                fontSize: 15,
+                                fontWeight: FontWeight.w800)),
+                        const SizedBox(width: 2),
+                        Text(item.model,
+                            style: GoogleFonts.aleo(
+                                color: black,
+                                fontSize: 10,
+                                fontWeight: FontWeight.w600)),
+                      ],
+                    ),
+                  ),
+                  rateItemInshowModalBottomSheet(siz, item),
+                ],
+              ),
+            );
+          },
+        ),
       ),
-      itemCount: searchControl.filteredItems.length,
-      itemBuilder: (context, index) {
-        final item = searchControl.filteredItems[index];
-        return Container(
-          decoration: BoxDecoration(
-            border: Border.all(color: grey),
-            borderRadius: BorderRadius.circular(20),
+    );
+  }
+
+  Widget rateItemInshowModalBottomSheet(Size size, RevenueIemsModel model) {
+    // print("Rate for item: ${model.model}");
+    int fullStars = model.rate.floor();
+    bool hasHalfStar = (model.rate - fullStars) >= 0.5;
+    return Positioned(
+      top: size.height / 4.2,
+      left: size.width * 0.02,
+      child: SizedBox(
+          child: Row(
+        children: [
+          Text('${model.price} JOD',
+              style: GoogleFonts.aleo(
+                  color: black, fontSize: 13, fontWeight: FontWeight.w700)),
+          Row(
+            mainAxisSize: MainAxisSize.min,
+            children: List.generate(
+              5,
+              (index) {
+                if (index < fullStars) {
+                  return const Icon(Icons.star, color: Colors.amber, size: 18);
+                } else if (index == hasHalfStar && hasHalfStar) {
+                  return const Icon(Icons.star_half,
+                      color: Colors.amber, size: 18);
+                } else {
+                  return const Icon(Icons.star_border,
+                      color: Colors.amber, size: 18);
+                }
+              },
+            ),
           ),
-          margin: EdgeInsets.symmetric(
-            horizontal: siz.height * 0.010,
-            vertical: siz.height * 0.01,
-          ),
-          width: siz.width / 1.5,
-          child: Stack(
-            children: [
-              Image(
-                image: AssetImage(item.imgAdress),
-              ),
-              Positioned(
-                left: 10,
-                top: 5,
-                child: Text(item.name,
-                    style: GoogleFonts.aleo(
-                        color: black,
-                        fontSize: 15,
-                        fontWeight: FontWeight.w800)),
-              ),
-              Positioned(
-                  top: 195,
-                  child: Text(
-                    item.model,
-                    style: GoogleFonts.aleo(
-                        color: black,
-                        fontSize: 10,
-                        fontWeight: FontWeight.w600),
-                  )),
-              Positioned(
-                top: 215,
-                left: 10,
-                child: Text('${item.price} JOD',
-                    style: GoogleFonts.aleo(
-                        color: black,
-                        fontSize: 13,
-                        fontWeight: FontWeight.w700)),
-              ),
-              // Positioned(
-              //   top: 200,
-              //   left: 135,
-              //   child: IconButton(
-              //     onPressed: () => context
-              //         .read<MostTrindingCubit>()
-              //         .toggleLikeFrommostTrending(index),
-              //     icon: Icon(Iconsax.heart,
-              //         size: 30, color: item.liked ? redColor : black),
-              //   ),
-              // ),
-            ],
-          ),
-        );
-      },
+        ],
+      )),
     );
   }
 
   Column userImageAndFullName(UserModel users) {
     return Column(
       children: [
-        const CircleAvatar(radius: 55),
+        buildProfileImage(userData.user.value.userPic),
         const SizedBox(
           height: 4,
         ),
@@ -193,7 +233,40 @@ class _ProfileState extends State<Profile> {
     );
   }
 
+  Widget buildProfileImage(String? base64Image) {
+    if (base64Image == null || base64Image.isEmpty) {
+      return const CircleAvatar(
+        backgroundColor: grey,
+        radius: 50,
+        child: Icon(
+          color: white,
+          Iconsax.user,
+          size: 35,
+        ),
+      );
+    }
+
+    try {
+      final bytes = base64Decode(base64Image);
+      return CircleAvatar(
+        radius: 50,
+        backgroundImage: MemoryImage(bytes),
+      );
+    } catch (e) {
+      return const CircleAvatar(
+        radius: 50,
+        child: Icon(
+          Icons.error,
+          size: 35,
+          color: white,
+        ),
+      );
+    }
+  }
+
   Row customerServiceAndSettingsButtons() {
+    /* final networkImage = userData.user.value.userPic;
+    final iamge = networkImage!= null?networkImage:'' */
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
@@ -203,7 +276,8 @@ class _ProfileState extends State<Profile> {
               fontSize: 25, color: black, fontWeight: FontWeight.w500),
         ),
         GestureDetector(
-          onTap: () => Get.to(() => const CustomerServicePage()),
+          onTap: () => getx.Get.to(() => const CustomerServicePage(),
+              transition: getx.Transition.rightToLeft),
           child: const Stack(
             children: [
               Positioned(
@@ -245,7 +319,7 @@ class MyOrdersSection extends StatelessWidget {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              unpaidOrder(),
+              // unpaidOrder(),
               processingOrder(),
               shippedOrder(),
               reveiwOrder(),
@@ -308,20 +382,24 @@ class MyOrdersSection extends StatelessWidget {
     );
   }
 
-  Column processingOrder() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.center,
-      children: [
-        const Icon(Icons.archive_sharp),
-        const SizedBox(
-          height: 5,
-        ),
-        Text(
-          "Processing",
-          style: GoogleFonts.aleo(
-              fontSize: 10, color: black, fontWeight: FontWeight.w700),
-        )
-      ],
+  GestureDetector processingOrder() {
+    return GestureDetector(
+      onTap: () => getx.Get.to(() => const ProcessingOrdersPage(),
+          transition: getx.Transition.rightToLeft),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          const Icon(Iconsax.arrow_swap_horizontal),
+          const SizedBox(
+            height: 5,
+          ),
+          Text(
+            "Processing",
+            style: GoogleFonts.aleo(
+                fontSize: 10, color: black, fontWeight: FontWeight.w700),
+          )
+        ],
+      ),
     );
   }
 
@@ -467,7 +545,7 @@ class SettingsAndActivity extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final tkOut = Get.put(SignOutCopntroller());
+    final tkOut = getx.Get.put(SignOutCopntroller());
     return Drawer(
       backgroundColor: white,
       width: size.width / 2,

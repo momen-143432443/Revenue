@@ -1,5 +1,4 @@
 import 'dart:convert';
-
 import 'package:css/Backend/Controllers/ForProductControllers/SearchBarController.dart';
 import 'package:css/Backend/Controllers/ForUserControllers/ProfileController.dart';
 import 'package:css/Backend/Infsructure/Models/ItemsModel.dart';
@@ -40,7 +39,7 @@ class _SearchPageState extends State<SearchPage> {
             await searchControl.filtersItems(searchControl.query.value);
           },
           child: SingleChildScrollView(
-            physics: const AlwaysScrollableScrollPhysics(),
+            physics: const NeverScrollableScrollPhysics(),
             child: Center(
                 child: Column(
               children: [
@@ -135,7 +134,11 @@ class _SearchPageState extends State<SearchPage> {
               )
             : const Icon(Icons.image_not_supported),
         title: Text(item.name),
-        subtitle: Text(item.model),
+        subtitle: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [Text(item.model), rateItemInshowModalBottomSheet(item)],
+        ),
         trailing: Text('${item.price} JOD'),
       ),
     );
@@ -250,19 +253,26 @@ class _SearchPageState extends State<SearchPage> {
                 ).toList())));
   }
 
-  SizedBox rateItemInshowModalBottomSheet(Size siz, RevenueIemsModel item) {
+  Widget rateItemInshowModalBottomSheet(SearchItemModel model) {
+    print("Rate for item: ${model.rate}");
+    int fullStars = model.rate.floor();
+    bool hasHalfStar = (model.rate - fullStars) >= 0.5;
     return SizedBox(
-      width: siz.width / 1.2,
-      height: 10,
-      child: ListView.builder(
-        scrollDirection: Axis.horizontal,
-        shrinkWrap: true,
-        itemCount: item.rate.length,
-        itemBuilder: (context, rateIndex) {
-          return Container(child: item.rate[rateIndex]);
+        child: Row(
+      mainAxisSize: MainAxisSize.min,
+      children: List.generate(
+        5,
+        (index) {
+          if (index < fullStars) {
+            return const Icon(Icons.star, color: Colors.amber, size: 10);
+          } else if (index == hasHalfStar && hasHalfStar) {
+            return const Icon(Icons.star_half, color: Colors.amber, size: 10);
+          } else {
+            return const Icon(Icons.star_border, color: Colors.amber, size: 10);
+          }
         },
       ),
-    );
+    ));
   }
 
   Padding modelItemInshowModalBottomSheet(RevenueIemsModel item) {

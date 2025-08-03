@@ -283,7 +283,7 @@ class GoogleSign extends StatelessWidget {
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
     return GestureDetector(
-      onTap: () {},
+      onTap: () async => await controller.googleSignIn(),
       child: Container(
           decoration: BoxDecoration(
               color: redColor, borderRadius: BorderRadius.circular(30)),
